@@ -2,11 +2,14 @@ using System.Linq;
 using System.Threading.Tasks;
 using ff14bot;
 using ff14bot.Managers;
+using Magitek.Enumerations;
 using Magitek.Extensions;
 using Magitek.Logic;
 using Magitek.Logic.Paladin;
 using Magitek.Logic.Roles;
+using Magitek.Models.Account;
 using Magitek.Models.Paladin;
+using Magitek.Models.QueueSpell;
 using Magitek.Utilities;
 using Auras = Magitek.Utilities.Auras;
 
@@ -14,6 +17,40 @@ namespace Magitek.Rotations.Paladin
 {
     internal static class Combat
     {
+
+        public static bool CanStartOpener
+
+        {
+
+            get
+
+            {
+
+                if (!BaseSettings.Instance.UseOpeners)
+
+                    return false;
+
+                if (Spells.FightorFlight.Cooldown.Seconds > 1)
+                    return false;
+                if (Spells.CircleofScorn.Cooldown.Seconds > 1)
+                    return false;
+                if (Spells.Requiescat.Cooldown.Seconds > 1)
+                    return false;
+                if (Spells.Intervene.Cooldown.Seconds > 1)
+                    return false;
+                if (Spells.SpiritsWithin.Cooldown.Seconds > 1)
+                    return false;
+
+                return true;
+
+            }
+
+        }
+
+
+        public static bool InSpellQueue { get; private set; }
+
+
         public static async Task<bool> Execute()
         {
             if (await Defensive.TankBusters()) return true;
@@ -26,9 +63,29 @@ namespace Magitek.Rotations.Paladin
             if (!Core.Me.HasTarget || !Core.Me.CurrentTarget.ThoroughCanAttack())
                 return false;
 
+            //if (await CustomOpenerLogic.Opener()) return true;
 
-            if (await CustomOpenerLogic.Opener()) return true;
-      
+            #region Opener
+
+            if (!OpenerLogic.OpenerQueue.Any())
+
+            {
+
+                ResetOpener();
+
+            }
+
+
+            if (!InSpellQueue && (OpenerLogic.CanStartOpenerBase && CanStartOpener || OpenerLogic.InOpener))
+
+            {
+                if (await OpenerLogic.Opener()) return true;
+
+            }
+
+            #endregion
+
+
             if (await Buff.Oath()) return true;
 
 
@@ -38,6 +95,7 @@ namespace Magitek.Rotations.Paladin
                 if (await Tank.Provoke(PaladinSettings.Instance)) return true;
                 if (await Defensive.Defensives()) return true;           
                 if (await Buff.Intervention()) return true;
+                Logger.Write($@"GCD Time: {Utilities.Routines.Paladin.OnGcd}");
                 if (await Buff.DivineVeil()) return true;
                 if (await SingleTarget.Requiescat()) return true;
                 if (await Buff.FightOrFlight()) return true;
@@ -120,9 +178,55 @@ namespace Magitek.Rotations.Paladin
             {
                 return await Spells.ShieldLob.Cast(Core.Me.CurrentTarget);
             }
-
+            Logger.Write($@"GCD Time: {Utilities.Routines.Paladin.OnGcd}");
             if (PaladinSettings.Instance.HolySpiritWhenOutOfMeleeRange && Core.Me.ClassLevel >= 64 && await Spells.HolySpirit.Cast(Core.Me.CurrentTarget)) return true;
             return await SingleTarget.ShieldLob();
         }
+
+        private static void ResetOpener()
+
+        {
+
+            OpenerLogic.OpenerQueue.Clear();
+            OpenerLogic.InOpener = false;
+
+            OpenerLogic.NeedToDequeueSuccessfulCast = false;
+
+            OpenerLogic.CancelOpener = () =>
+
+            {
+
+                return false;
+
+            };
+
+
+
+            OpenerLogic.OpenerQueue.Enqueue(new QueueSpell { Spell = Spells.FastBlade });
+            OpenerLogic.OpenerQueue.Enqueue(new QueueSpell { Spell = Spells.CircleofScorn, TargetSelf = true });
+            OpenerLogic.OpenerQueue.Enqueue(new QueueSpell { Spell = Spells.RiotBlade });
+            OpenerLogic.OpenerQueue.Enqueue(new QueueSpell { Spell = Spells.FightorFlight, TargetSelf = true });
+            OpenerLogic.OpenerQueue.Enqueue(new QueueSpell { Spell = Spells.GoringBlade });                
+            OpenerLogic.OpenerQueue.Enqueue(new QueueSpell { Spell = Spells.FastBlade });
+            OpenerLogic.OpenerQueue.Enqueue(new QueueSpell { Spell = Spells.RiotBlade });
+            OpenerLogic.OpenerQueue.Enqueue(new QueueSpell { Spell = Spells.RoyalAuthority });
+            OpenerLogic.OpenerQueue.Enqueue(new QueueSpell { Spell = Spells.SpiritsWithin });
+            OpenerLogic.OpenerQueue.Enqueue(new QueueSpell { Spell = Spells.Intervene });
+            OpenerLogic.OpenerQueue.Enqueue(new QueueSpell { Spell = Spells.Atonement });
+            OpenerLogic.OpenerQueue.Enqueue(new QueueSpell { Spell = Spells.Intervene });
+            OpenerLogic.OpenerQueue.Enqueue(new QueueSpell { Spell = Spells.Atonement });
+            OpenerLogic.OpenerQueue.Enqueue(new QueueSpell { Spell = Spells.Atonement });
+            OpenerLogic.OpenerQueue.Enqueue(new QueueSpell { Spell = Spells.FastBlade });
+            OpenerLogic.OpenerQueue.Enqueue(new QueueSpell { Spell = Spells.RiotBlade });
+            OpenerLogic.OpenerQueue.Enqueue(new QueueSpell { Spell = Spells.CircleofScorn, TargetSelf = true });
+            OpenerLogic.OpenerQueue.Enqueue(new QueueSpell { Spell = Spells.GoringBlade });
+            OpenerLogic.OpenerQueue.Enqueue(new QueueSpell { Spell = Spells.Requiescat });
+            OpenerLogic.OpenerQueue.Enqueue(new QueueSpell { Spell = Spells.HolySpirit });
+            OpenerLogic.OpenerQueue.Enqueue(new QueueSpell { Spell = Spells.HolySpirit });
+            OpenerLogic.OpenerQueue.Enqueue(new QueueSpell { Spell = Spells.HolySpirit });
+            OpenerLogic.OpenerQueue.Enqueue(new QueueSpell { Spell = Spells.HolySpirit });
+            OpenerLogic.OpenerQueue.Enqueue(new QueueSpell { Spell = Spells.Confiteor });
+        }
+
     }
 }

@@ -2,6 +2,7 @@ using System;
 using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
+using Buddy.Coroutines;
 using ff14bot;
 using ff14bot.Managers;
 using ff14bot.Objects;
@@ -57,7 +58,7 @@ namespace Magitek.Logic.Paladin
 
             return false;
         }
-        
+
         public static async Task<bool> FightOrFlight()
         {
             if (!PaladinSettings.Instance.UseFightOrFlight)
@@ -72,12 +73,12 @@ namespace Magitek.Logic.Paladin
             if (Core.Me.HasAura(Auras.Requiescat))
                 return false;
 
-            if (ActionManager.LastSpell == Spells.RiotBlade)
-                return await Spells.FightorFlight.Cast(Core.Me);
+            if (ActionManager.LastSpell != Spells.RiotBlade)
+                return false;
 
-            return false;
+            return await Spells.FightorFlight.Cast(Core.Me);
         }
-                
+
         public static async Task<bool> DivineVeil()
         {
             if (!PaladinSettings.Instance.DivineVeil)
