@@ -98,7 +98,7 @@ namespace Magitek.Logic.Paladin
                 return false;
 
             if (!Core.Me.HasAura(Auras.Requiescat, true,
-                3000))
+                2600))
                 return await Spells.Confiteor.Cast(Core.Me.CurrentTarget);
 
             if (Core.Me.CurrentMana > 4000)

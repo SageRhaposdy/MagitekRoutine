@@ -12,6 +12,6 @@ namespace Magitek.Utilities.Routines
             Auras.Sentinel
         };
         
-        public static bool OnGcd => Spells.FastBlade.Cooldown > TimeSpan.FromMilliseconds(500);
+        public static bool OnGcd => Spells.FastBlade.Cooldown.TotalMilliseconds > 600;
     }
 }

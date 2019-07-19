@@ -73,7 +73,15 @@ namespace Magitek.Logic.Paladin
             if (Core.Me.HasAura(Auras.Requiescat))
                 return false;
 
-            if (ActionManager.LastSpell != Spells.RiotBlade)
+            if (ActionManager.LastSpell != Spells.FastBlade)
+                return false;
+
+            if (Core.Me.CurrentTarget.HasAura(Auras.GoringBlade, true, 15000))
+                return false;
+
+            Logger.Write($@"GCD Time: {Spells.FastBlade.Cooldown.TotalMilliseconds}");
+
+            if(Spells.FastBlade.Cooldown.TotalMilliseconds > 800)
                 return false;
 
             return await Spells.FightorFlight.Cast(Core.Me);

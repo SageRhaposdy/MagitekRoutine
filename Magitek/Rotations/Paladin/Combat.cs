@@ -95,7 +95,6 @@ namespace Magitek.Rotations.Paladin
                 if (await Tank.Provoke(PaladinSettings.Instance)) return true;
                 if (await Defensive.Defensives()) return true;           
                 if (await Buff.Intervention()) return true;
-                Logger.Write($@"GCD Time: {Utilities.Routines.Paladin.OnGcd}");
                 if (await Buff.DivineVeil()) return true;
                 if (await SingleTarget.Requiescat()) return true;
                 if (await Buff.FightOrFlight()) return true;
