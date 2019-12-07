@@ -46,6 +46,34 @@ namespace Magitek.Models.Monk
         public int MantraAllies { get; set; }
 
         [Setting]
+        [DefaultValue(false)]
+        public bool UseAutoMeditate { get; set; }
+
+        [Setting]
+        [DefaultValue(true)]
+        public bool UseEnlightenment { get; set; }
+
+        [Setting]
+        [DefaultValue(3)]
+        public int EnlightenmentEnemies { get; set; }
+
+        [Setting]
+        [DefaultValue(false)]
+        public bool UseAutoFormShift { get; set; }
+
+        [Setting]
+        [DefaultValue(false)]
+        public bool AutoFormShiftStopCoeurl { get; set; }
+
+        [Setting]
+        [DefaultValue(false)]
+        public bool UseManualPB { get; set; }
+
+        [Setting]
+        [DefaultValue(false)]
+        public bool AutoFormShiftStopRaptor { get; set; }
+
+        [Setting]
         [DefaultValue(60.0f)]
         public float MantraHealthPercent { get; set; }
 
@@ -74,7 +102,7 @@ namespace Magitek.Models.Monk
         public bool DemolishUseTtd { get; set; }
 
         [Setting]
-        [DefaultValue(25)]
+        [DefaultValue(15)]
         public double DemolishMinimumTtd { get; set; }
 
         [Setting]
@@ -136,5 +164,9 @@ namespace Magitek.Models.Monk
         [Setting]
         [DefaultValue(true)]
         public bool UseTheForbiddenChakra { get; set; }
+
+        [Setting]
+        [DefaultValue(false)]
+        public bool UsePositionalToasts { get; set; }
     }
 }

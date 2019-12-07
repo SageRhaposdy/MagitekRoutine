@@ -5,7 +5,6 @@ using ff14bot.Managers;
 using ff14bot.Objects;
 using Magitek.Utilities;
 using Magitek.ViewModels;
-using Auras = Magitek.Utilities.Auras;
 
 
 namespace Magitek.Extensions
@@ -14,19 +13,17 @@ namespace Magitek.Extensions
     {
         public static bool HasAetherflow(this LocalPlayer me)
         {
-            return MagitekActionResourceManager.Arcanist.Aetherflow > 0;
-
-            // return ActionResourceManager.Arcanist.Aetherflow > 0;
-        }
-
-        public static bool HasBloodWeapon(this LocalPlayer me)
-        {
-            return Core.Me.HasAnyAura(new uint[] {Auras.BloodWeapon});
+            return ActionResourceManager.Scholar.Aetherflow > 0;
         }
 
         public static bool HasEnochian(this LocalPlayer me)
         {
             return MagitekActionResourceManager.BlackMage.Enochian;
+        }
+
+        public static bool HasDarkArts(this LocalPlayer me)
+        {
+            return MagitekActionResourceManager.DarkKnight.DarkArts;
         }
 
         public static bool OnPvpMap(this LocalPlayer player)

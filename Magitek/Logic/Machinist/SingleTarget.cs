@@ -1,55 +1,127 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Linq;
+using System.Threading.Tasks;
 using ff14bot;
 using ff14bot.Managers;
+using ff14bot.Navigation;
 using Magitek.Extensions;
+using Magitek.Models.Account;
 using Magitek.Models.Machinist;
 using Magitek.Utilities;
+using MachinistGlobals = Magitek.Utilities.Routines.Machinist;
 
 namespace Magitek.Logic.Machinist
 {
     internal static class SingleTarget
     {
-        public static async Task<bool> SplitShot()
+        public static async Task<bool> HeatedSplitShot()
         {
-            return await Spells.SplitShot.Cast(Core.Me.CurrentTarget);
+            //One to disable them all
+            if (!MachinistSettings.Instance.UseSplitShotCombo)
+                return false;
+
+            if(BaseSettings.Instance.UserLatencyOffset >= 80)
+            {
+                if (Casting.LastSpell == Spells.Hypercharge)
+                    return false;
+            }
+
+            if (ActionResourceManager.Machinist.OverheatRemaining > TimeSpan.Zero)
+                return false;
+
+            return await MachinistGlobals.HeatedSplitShot.Cast(Core.Me.CurrentTarget);
         }
 
-        public static async Task<bool> SlugShot()
+        public static async Task<bool> HeatedSlugShot()
         {
-            if (ActionManager.LastSpell != Spells.SplitShot) return false;
+            if (ActionManager.LastSpell != Spells.SplitShot)
+                return false;
 
-            return await Spells.SlugShot.Cast(Core.Me.CurrentTarget);
+            if (Casting.LastSpell == Spells.Hypercharge)
+                return false;
+
+            if (ActionResourceManager.Machinist.OverheatRemaining > TimeSpan.Zero)
+                return false;
+
+            return await MachinistGlobals.HeatedSlugShot.Cast(Core.Me.CurrentTarget);
         }
 
-        public static async Task<bool> CleanShot()
+        public static async Task<bool> HeatedCleanShot()
         {
-            if (ActionManager.LastSpell != Spells.SlugShot) return false;
-            return await Spells.CleanShot.Cast(Core.Me.CurrentTarget);
-        }
+            if (ActionManager.LastSpell != Spells.SlugShot)
+                return false;
 
-        public static async Task<bool> HotShot()
-        {
-            return await Spells.HotShot.Cast(Core.Me.CurrentTarget);
-        }
-        
-        public static async Task<bool> GaussRound()
-        {
-            return await Spells.GaussRound.Cast(Core.Me.CurrentTarget);
-        }
+            if (Casting.LastSpell == Spells.Hypercharge)
+                return false;
 
-        public static async Task<bool> HeatBlast()
-        {
-            return await Spells.HeatBlast.Cast(Core.Me.CurrentTarget);
+            if (ActionResourceManager.Machinist.OverheatRemaining > TimeSpan.Zero)
+                return false;
+
+            return await MachinistGlobals.HeatedCleanShot.Cast(Core.Me.CurrentTarget);
         }
 
         public static async Task<bool> Drill()
         {
+            if (!MachinistSettings.Instance.UseDrill)
+                return false;
+
+            if (Casting.LastSpell == Spells.Hypercharge)
+                return false;
+
+            if (Core.Me.HasAura(Auras.WildfireBuff))
+                return false;
+
             return await Spells.Drill.Cast(Core.Me.CurrentTarget);
         }
 
-        public static async Task<bool> AirAnchor()
+        public static async Task<bool> HotAirAnchor()
         {
-            return await Spells.AirAnchor.Cast(Core.Me.CurrentTarget);
+            if (!MachinistSettings.Instance.UseHotAirAnchor)
+                return false;
+
+            if (Casting.LastSpell == Spells.Hypercharge)
+                return false;
+
+            if (Core.Me.HasAura(Auras.WildfireBuff))
+                return false;
+
+            return await MachinistGlobals.HotAirAnchor.Cast(Core.Me.CurrentTarget);
+        }
+
+        public static async Task<bool> HeatBlast()
+        {
+
+            if(Casting.LastSpell == Spells.Hypercharge)
+                return await Spells.HeatBlast.Cast(Core.Me.CurrentTarget);
+
+            if (ActionResourceManager.Machinist.OverheatRemaining == TimeSpan.Zero)
+                return false;
+
+            return await Spells.HeatBlast.Cast(Core.Me.CurrentTarget);
+        }
+
+        public static async Task<bool> GaussRound()
+        {
+            if (!MachinistSettings.Instance.UseGaussRound)
+                return false;
+
+            if (!MachinistGlobals.IsInWeaveingWindow)
+                return false;
+
+            if (Casting.LastSpell == Spells.Wildfire)
+                return false;
+
+            if (Core.Me.ClassLevel > 45)
+            {
+                if (Spells.Wildfire.Cooldown.Seconds < 2)
+                    return false;
+            }
+
+            /*add some mor precise logic for pooling/dumping
+            if (Spells.GaussRound.Charges < 1.8f)
+                return false;*/
+
+            return await Spells.GaussRound.Cast(Core.Me.CurrentTarget);
         }
     }
 }

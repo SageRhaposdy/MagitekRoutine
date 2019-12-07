@@ -1,12 +1,11 @@
 using System;
-using System.Diagnostics;
 using System.Linq;
 using System.Threading.Tasks;
-using Buddy.Coroutines;
 using ff14bot;
 using ff14bot.Managers;
 using ff14bot.Objects;
 using Magitek.Extensions;
+using Magitek.Models.Account;
 using Magitek.Models.Paladin;
 using Magitek.Utilities;
 using Auras = Magitek.Utilities.Auras;
@@ -17,7 +16,7 @@ namespace Magitek.Logic.Paladin
     {
         public static async Task<bool> Oath()
         {
-            if (PaladinSettings.Instance.ShieldOath && !Core.Me.HasAura(Auras.ShieldOath))
+            if (PaladinSettings.Instance.IronWill && !Core.Me.HasAura(Auras.IronWill))
             {
                 if (PaladinSettings.Instance.OathHotSwapMode == true)
                 {
@@ -31,16 +30,14 @@ namespace Magitek.Logic.Paladin
                     PaladinSettings.Instance.ShieldLobLostAggro = PaladinSettings.Instance.SwordPullExtra;
                     PaladinSettings.Instance.Requiescat = PaladinSettings.Instance.SwordRequiecast;
                 }
-                return await Spells.ShieldOath.Cast(Core.Me);
+
+                return await Spells.IronWill.Cast(Core.Me);
             }
 
 
-            if (PaladinSettings.Instance.ShieldOath && Core.Me.HasAura(Auras.ShieldOath))
-                return false;
-
-            if (!PaladinSettings.Instance.ShieldOath && Core.Me.HasAura(Auras.ShieldOath))
+            if (!PaladinSettings.Instance.IronWill && Core.Me.HasAura(Auras.IronWill))
             {
-                if(PaladinSettings.Instance.OathHotSwapMode == true)
+                if (PaladinSettings.Instance.OathHotSwapMode == true)
                 {
                     PaladinSettings.Instance.UseDefensives = PaladinSettings.Instance.ShieldDefensive;
                     PaladinSettings.Instance.UseClemency = PaladinSettings.Instance.ShieldClemency;
@@ -52,12 +49,15 @@ namespace Magitek.Logic.Paladin
                     PaladinSettings.Instance.ShieldLobLostAggro = PaladinSettings.Instance.ShieldPullExtra;
                     PaladinSettings.Instance.Requiescat = PaladinSettings.Instance.ShieldRequiecast;
                 }
-                return await Spells.ShieldOath.Cast(Core.Me);
+
+                return await Spells.IronWill.Cast(Core.Me);
             }
-                
+
 
             return false;
+
         }
+
 
         public static async Task<bool> FightOrFlight()
         {
@@ -73,20 +73,31 @@ namespace Magitek.Logic.Paladin
             if (Core.Me.HasAura(Auras.Requiescat))
                 return false;
 
-            if (ActionManager.LastSpell != Spells.FastBlade)
+            if (Core.Me.CurrentTarget.HasAura(Auras.GoringBlade, true, 13000))
                 return false;
 
-            if (Core.Me.CurrentTarget.HasAura(Auras.GoringBlade, true, 15000))
-                return false;
+            if (PaladinSettings.Instance.FoFFastBlade)
+            {
+                if (ActionManager.LastSpell != Spells.FastBlade)
+                    return false;
 
-            Logger.Write($@"GCD Time: {Spells.FastBlade.Cooldown.TotalMilliseconds}");
+                if (Spells.FastBlade.Cooldown.TotalMilliseconds > (650 + BaseSettings.Instance.UserLatencyOffset))
+                    return false;
 
-            if(Spells.FastBlade.Cooldown.TotalMilliseconds > 800)
-                return false;
+                return await Spells.FightorFlight.Cast(Core.Me);
+            }
+            else
+            {
+                if (ActionManager.LastSpell != Spells.RiotBlade)
+                    return false;
 
-            return await Spells.FightorFlight.Cast(Core.Me);
+                if (Spells.FastBlade.Cooldown.TotalMilliseconds > (650 + BaseSettings.Instance.UserLatencyOffset))
+                    return false;
+
+                return await Spells.FightorFlight.Cast(Core.Me);
+            }
         }
-
+  
         public static async Task<bool> DivineVeil()
         {
             if (!PaladinSettings.Instance.DivineVeil)
@@ -103,7 +114,6 @@ namespace Magitek.Logic.Paladin
 
             return await Spells.DivineVeil.Cast(Core.Me);
         }
-        
         
         public static async Task<bool> Sheltron()
         {

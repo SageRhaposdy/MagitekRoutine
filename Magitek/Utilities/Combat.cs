@@ -9,7 +9,7 @@ using ff14bot.Objects;
 namespace Magitek.Utilities
 {
     internal static class Combat
-    {        
+    {
         public static readonly List<BattleCharacter> Enemies = new List<BattleCharacter>();
         public static readonly Stopwatch CombatTime = new Stopwatch();
         public static readonly Stopwatch OutOfCombatTime = new Stopwatch();
@@ -24,37 +24,27 @@ namespace Magitek.Utilities
             //if (!Tracking.EnemyInfos.Any(r => r.Unit == target && r.IsMoving)) return false;
 
             var movingTarget = Tracking.EnemyInfos.FirstOrDefault(r => r.Unit == target && r.IsMoving);
-            
+
             return movingTarget != null && movingTarget.IsMovingChange.ElapsedMilliseconds > 2000;
         }
 
         public static void AdjustCombatTime()
         {
-            // In a party
-            if (PartyManager.IsInParty)
+            //General Combat Status Check
+            if (Core.Me.InCombat)
             {
-                if (Enemies.Any(r => r.TaggerType == 2))
-                {
-                    AdjustInCombatTimers();
-                }
-                else
-                {
-                 AdjustOutOfCombatTimers();
-                }
-
-                // Return since we're in a party
+                AdjustInCombatTimers();
                 return;
             }
 
-            // Not in a party
-            if (Core.Me.InCombat)
+            //If Our Party Has Tagged Something We're Also InCombat
+            if (Globals.InParty && Globals.PartyInCombat)
             {
-               AdjustInCombatTimers();
+                AdjustInCombatTimers();
+                return;
             }
-            else
-            {
-                AdjustOutOfCombatTimers();
-            }
+
+            AdjustOutOfCombatTimers();
 
             // Private methods
             void AdjustInCombatTimers()

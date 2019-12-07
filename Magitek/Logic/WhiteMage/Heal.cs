@@ -372,6 +372,9 @@ namespace Magitek.Logic.WhiteMage
             if (regenTarget == null)
                 return false;
 
+            if (!MovementManager.IsMoving && WhiteMageSettings.Instance.OnlyRegenWhileMoving)
+                return false;
+
             return await Spells.Regen.Cast(regenTarget);
         }
         
@@ -444,7 +447,7 @@ namespace Magitek.Logic.WhiteMage
             if (!deadTarget.IsTargetable)
                 return false;
 
-            if (Core.Me.InCombat || Core.Me.OnPvpMap())
+            if (Core.Me.InCombat || Globals.OnPvpMap)
             {
                 if (Core.Me.ClassLevel < 28)
                     return false;
@@ -489,7 +492,13 @@ namespace Magitek.Logic.WhiteMage
             if (canPlenaryIndulgence < WhiteMageSettings.Instance.PlenaryIndulgenceAllies)
                 return false;
 
-            return await Spells.PlenaryIndulgence.Cast(Core.Me);
+            if (await Spells.PlenaryIndulgence.Cast(Core.Me))
+                if (!await Cure3())
+                    if (!await AfflatusRapture())
+                        if (!await Medica2())
+                            return await Spells.Medica.Cast(Core.Me);
+
+            return false;
         }
 
         public static async Task<bool> AfflatusSolace()
@@ -515,12 +524,7 @@ namespace Magitek.Logic.WhiteMage
                     if (Casting.LastSpell == Spells.Tetragrammaton && Casting.LastSpellTarget == afflatusSolaceTankTarget)
                         return false;
 
-                    if (await Spells.AfflatusSolace.Heal(afflatusSolaceTankTarget, false))
-                        if (!await Cure3())
-                            if (!await Medica2())
-                                return await Spells.Medica.Cast(Core.Me);
-
-                    return false;
+                    return await Spells.AfflatusSolace.Heal(afflatusSolaceTankTarget, false);
                 }
 
                 var afflatusSolaceTarget = Group.CastableAlliesWithin30.FirstOrDefault(r => !Utilities.Routines.WhiteMage.DontAfflatusSolace.Contains(r.Name) && r.CurrentHealth > 0 && r.CurrentHealthPercent <= WhiteMageSettings.Instance.AfflatusSolaceHealthPercent);
@@ -531,12 +535,7 @@ namespace Magitek.Logic.WhiteMage
                 if (Casting.LastSpell == Spells.Tetragrammaton && Casting.LastSpellTarget == afflatusSolaceTarget)
                     return false;
 
-                if (await Spells.AfflatusSolace.Heal(afflatusSolaceTarget, false))
-                    if (!await Cure3())
-                        if (!await Medica2())
-                            return await Spells.Medica.Cast(Core.Me);
-
-                return false;
+                return await Spells.AfflatusSolace.Heal(afflatusSolaceTarget, false);
             }
             else
             {

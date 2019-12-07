@@ -27,7 +27,7 @@ namespace Magitek.Logic.Ninja
             if (!Core.Me.HasTarget)
                 return false;
 
-            if (Core.Me.ClassLevel >= 76)
+            if (Core.Me.HasAura(Auras.Kassatsu))
                 return false;
 
             if (Spells.TrickAttack.Cooldown.Seconds > 20000)
@@ -38,5 +38,42 @@ namespace Magitek.Logic.Ninja
 
             return false;
         }
+        
+        public static async Task<bool> Bunshin()
+        {
+            if (!NinjaSettings.Instance.UseBunshin)
+                return false;
+            if (Spells.SpinningEdge.Cooldown.TotalMilliseconds < 850)
+                return false;
+            return await Spells.Bunshin.Cast(Core.Me);
+        }
+
+        public static async Task<bool> TrueNorth()
+        {
+            if (!NinjaSettings.Instance.UseTrueNorth)
+                return false;
+
+            if (Core.Me.HasAura(Auras.TrueNorth))
+                return false;
+
+            //Do we need to for TA?
+            if (!Core.Me.HasAura(Auras.Suiton))
+                return false;
+
+            return await Spells.TrueNorth.Cast(Core.Me);
+        }
+
+        public static async Task<bool> Meisui()
+        {
+
+            if (!Core.Me.HasAura(Auras.Suiton))
+                return false;
+
+            if (Spells.Ten.Charges < 1 && Spells.Ten.Cooldown.Seconds > (Spells.TrickAttack.Cooldown.Seconds + 4))
+                return false;
+
+            return await Spells.Meisui.Cast(Core.Me);
+        }
+
     }
 }

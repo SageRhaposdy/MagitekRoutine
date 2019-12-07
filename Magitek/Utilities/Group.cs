@@ -37,15 +37,14 @@ namespace Magitek.Utilities
             DeadAllies.Clear();
             CastableTanks.Clear();
             CastableAlliesWithin30.Clear();
+            CastableAlliesWithin20.Clear();
             CastableAlliesWithin15.Clear();
             CastableAlliesWithin10.Clear();
 
-            if (!PartyManager.IsInParty)
+            if (!Globals.InParty)
             {
-                if (RaptureAtkUnitManager.Controls.Any(r => r.Name == "GcArmyOrder"))
+                if (Globals.InGcInstance)
                 {
-                    Globals.InGcInstance = true;
-
                     foreach (var ally in GameObjectManager.GetObjectsOfType<BattleCharacter>().Where(r => !r.CanAttack))
                     {
                         if (!ally.IsTargetable || !ally.InLineOfSight() || ally.Icon == PlayerIcon.Viewing_Cutscene)
@@ -70,21 +69,19 @@ namespace Magitek.Utilities
                         var distance = ally.Distance(Core.Me);
 
                         if (distance <= 30) { CastableAlliesWithin30.Add(ally); }
+                        if (distance <= 30) { CastableAlliesWithin20.Add(ally); }
                         if (distance <= 15) { CastableAlliesWithin15.Add(ally); }
                         if (distance <= 10) { CastableAlliesWithin10.Add(ally); }
 
                         CastableAlliesWithin30.Add(Core.Me);
+                        CastableAlliesWithin20.Add(Core.Me);
                         CastableAlliesWithin15.Add(Core.Me);
                         CastableAlliesWithin10.Add(Core.Me);
                     }
                 }
-                else
-                {
-                    Globals.InGcInstance = false;
-                }
             }
             
-            foreach (var ally in PartyManager.RawMembers.Select(r => r.BattleCharacter))
+            foreach (var ally in PartyManager.AllMembers.Select(r => r.BattleCharacter))
             {
                 if (ally == null)
                     continue;
@@ -117,7 +114,9 @@ namespace Magitek.Utilities
                 var distance = ally.Distance(Core.Me);
 
                 if (distance <= 30) { CastableAlliesWithin30.Add(ally); }
+                if (distance <= 20) { CastableAlliesWithin20.Add(ally); }
                 if (distance <= 15) { CastableAlliesWithin15.Add(ally); }
+                if (distance <= 12) { CastableAlliesWithin12.Add(ally); }
                 if (distance <= 10) { CastableAlliesWithin10.Add(ally); }
             }
 
@@ -140,7 +139,9 @@ namespace Magitek.Utilities
         public static readonly List<Character> DeadAllies = new List<Character>();       
         public static readonly List<Character> CastableTanks = new List<Character>();
         public static readonly List<Character> CastableAlliesWithin30 = new List<Character>();
+        public static readonly List<Character> CastableAlliesWithin20 = new List<Character>();
         public static readonly List<Character> CastableAlliesWithin15 = new List<Character>();
+        public static readonly List<Character> CastableAlliesWithin12 = new List<Character>();
         public static readonly List<Character> CastableAlliesWithin10 = new List<Character>();
     }
 }

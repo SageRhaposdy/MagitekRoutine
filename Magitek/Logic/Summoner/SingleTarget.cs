@@ -1,5 +1,4 @@
-﻿using System.Linq;
-using System.Threading.Tasks;
+﻿using System.Threading.Tasks;
 using ff14bot;
 using ff14bot.Managers;
 using Magitek.Extensions;
@@ -50,6 +49,9 @@ namespace Magitek.Logic.Summoner
         {
             if (!SummonerSettings.Instance.Bio) return false;
 
+            if (Spells.TriDisaster.Cooldown.TotalMilliseconds <= SummonerSettings.Instance.DotRefreshSeconds * 1000 && Core.Me.ClassLevel > 53)
+                return false;
+
             return !Core.Me.CurrentTarget.HasAnyAura(Utilities.Routines.Summoner.BioAuras, true, SummonerSettings.Instance.DotRefreshSeconds * 1000)
                    && await Spells.SmnBio.Cast(Core.Me.CurrentTarget);
         }
@@ -60,6 +62,9 @@ namespace Magitek.Logic.Summoner
 
             if (MovementManager.IsMoving) return false;
             var refresh = SummonerSettings.Instance.DotRefreshSeconds * 1000;
+
+            if (Spells.TriDisaster.Cooldown.TotalMilliseconds <= refresh && Core.Me.ClassLevel > 53)
+                return false;
 
             switch (Core.Me.ClassLevel)
             {
@@ -76,11 +81,17 @@ namespace Magitek.Logic.Summoner
 
         public static async Task<bool> EgiAssault()
         {
-            if (Core.Me.ClassLevel < 10) return false;
+            if (Spells.EgiAssault.Cooldown.TotalMilliseconds > 1)
+                return false;
 
             if (!SummonerSettings.Instance.EgiAssault1) return false;
 
             if ((int)PetManager.ActivePetType == 10) return false;
+
+            if (Casting.LastSpell != Spells.Bio || Casting.LastSpell != Spells.Ruin2)
+                if (!ActionResourceManager.Summoner.DreadwyrmTrance)
+                    if (await Spells.SmnRuin2.Cast(Core.Me.CurrentTarget))
+                        return true;
 
             return await Spells.EgiAssault.Cast(Core.Me.CurrentTarget);
         }
@@ -88,6 +99,8 @@ namespace Magitek.Logic.Summoner
         public static async Task<bool> Fester()
         {
             if (Core.Me.ClassLevel < 18) return false;
+            if (Spells.Fester.Cooldown.TotalMilliseconds > 1)
+                return false;
 
             if (!SummonerSettings.Instance.Fester) return false;
 
@@ -95,50 +108,70 @@ namespace Magitek.Logic.Summoner
 
             if (Core.Me.CurrentTarget.HasAnyAura(Utilities.Routines.Summoner.BioAuras, true, 2000) && Core.Me.CurrentTarget.HasAnyAura(Utilities.Routines.Summoner.MiasmaAuras, true, 2000))
                 return await Spells.Fester.Cast(Core.Me.CurrentTarget);
-
+          
+            if (Casting.LastSpell != Spells.Bio || Casting.LastSpell != Spells.Ruin2)
+                if (!ActionResourceManager.Summoner.DreadwyrmTrance)
+                    if (await Spells.SmnRuin2.Cast(Core.Me.CurrentTarget))
+                        return true;
             return false;
         }
 
         public static async Task<bool> EnergyDrain()
         {
             if (Core.Me.ClassLevel < 18) return false;
-
+            if (Spells.EnergyDrain.Cooldown.TotalMilliseconds > 1)
+                return false;
             if (!SummonerSettings.Instance.EnergyDrain) return false;
 
             if (ActionResourceManager.Arcanist.Aetherflow > 0) return false;
 
+            if (Casting.LastSpell != Spells.Bio || Casting.LastSpell != Spells.Ruin2)
+                if (!ActionResourceManager.Summoner.DreadwyrmTrance)
+                    if (await Spells.SmnRuin2.Cast(Core.Me.CurrentTarget))
+                        return true;
             return await Spells.EnergyDrain.Cast(Core.Me.CurrentTarget);
         }
 
         public static async Task<bool> EgiAssault2()
         {
-            if (Core.Me.ClassLevel < 40) return false;
+            if (Spells.EgiAssault2.Cooldown.TotalMilliseconds > 1)
+                return false;
 
             if (!SummonerSettings.Instance.EgiAssault2) return false;
 
             if ((int)PetManager.ActivePetType == 10) return false;
 
+            if (Casting.LastSpell != Spells.Bio || Casting.LastSpell != Spells.Ruin2)
+                if (!ActionResourceManager.Summoner.DreadwyrmTrance)
+                    if (await Spells.SmnRuin2.Cast(Core.Me.CurrentTarget))
+                        return true;
             return await Spells.EgiAssault2.Cast(Core.Me.CurrentTarget);
         }
 
         public static async Task<bool> Enkindle()
         {
             if (Core.Me.ClassLevel < 50) return false;
-
+            if (Spells.Enkindle.Cooldown.TotalMilliseconds > 1)
+                return false;
             if (!SummonerSettings.Instance.Enkindle) return false;
 
             if ((int)PetManager.ActivePetType == 10 || (int)PetManager.ActivePetType == 14) return false;
 
+            if (Casting.LastSpell != Spells.Bio || Casting.LastSpell != Spells.Ruin2)
+                if (!ActionResourceManager.Summoner.DreadwyrmTrance)
+                    if (await Spells.SmnRuin2.Cast(Core.Me.CurrentTarget))
+                        return true;
             return await Spells.Enkindle.Cast(Core.Me.CurrentTarget);
         }
 
         public static async Task<bool> TriDisaster()
         {
             if (Core.Me.ClassLevel < 56) return false;
-
+            if (Spells.TriDisaster.Cooldown.TotalMilliseconds > 1)
+                return false;
             if (!SummonerSettings.Instance.TriDisaster) return false;
 
-            if (!ActionResourceManager.Summoner.DreadwyrmTrance && Spells.DreadwyrmTrance.Cooldown.TotalMilliseconds > 0)
+            if (!ActionResourceManager.Summoner.DreadwyrmTrance && Spells.Trance.Cooldown.TotalMilliseconds > 0)
             {
                 if (Core.Me.CurrentTarget.HasAnyAura(Utilities.Routines.Summoner.BioAuras, true, 3000)) return false;
                 if (Core.Me.CurrentTarget.HasAnyAura(Utilities.Routines.Summoner.MiasmaAuras, true, 3000)) return false;
@@ -148,32 +181,48 @@ namespace Magitek.Logic.Summoner
 
             if (Core.Me.CurrentTarget.HasAura(Auras.Ruination, true)) return false;
 
+            if (Casting.LastSpell != Spells.Bio || Casting.LastSpell != Spells.Ruin2)
+                if (!ActionResourceManager.Summoner.DreadwyrmTrance)
+                    if (await Spells.SmnRuin2.Cast(Core.Me.CurrentTarget))
+                        return true;
             return await Spells.TriDisaster.Cast(Core.Me.CurrentTarget);
         }
 
         public static async Task<bool> Deathflare()
         {
             if (Core.Me.ClassLevel < 60) return false;
-
+            if (Spells.Deathflare.Cooldown.TotalMilliseconds > 1)
+                return false;
             if (!SummonerSettings.Instance.Deathflare) return false;
 
             if (!ActionResourceManager.Summoner.DreadwyrmTrance) return false;
 
             if (ActionResourceManager.Summoner.Timer.TotalMilliseconds > 1000) return false;
 
-            return await Spells.DeathFlare.Cast(Core.Me.CurrentTarget);
+            if (Casting.LastSpell != Spells.Bio || Casting.LastSpell != Spells.Ruin2)
+                if (!ActionResourceManager.Summoner.DreadwyrmTrance)
+                    if (await Spells.SmnRuin2.Cast(Core.Me.CurrentTarget))
+                        return true;
+            return await Spells.Deathflare.Cast(Core.Me.CurrentTarget);
         }
 
         public static async Task<bool> EnkindleBahamut()
         {
             if (Core.Me.ClassLevel < 70) return false;
-
+            if (Spells.EnkindleBahamut.Cooldown.TotalMilliseconds > 1)
+                return false;
             if ((int)PetManager.ActivePetType != 10 && (int)PetManager.ActivePetType != 14) return false;
 
             if ((int)PetManager.ActivePetType == 10 && !SummonerSettings.Instance.EnkindleBahamut) return false;
 
             if ((int)PetManager.ActivePetType == 14 && !SummonerSettings.Instance.EnkindlePhoenix) return false;
 
+            if (ActionResourceManager.Summoner.Timer.TotalMilliseconds > 18000) return false;
+
+            if (Casting.LastSpell != Spells.Bio || Casting.LastSpell != Spells.Ruin2)
+                if (!ActionResourceManager.Summoner.DreadwyrmTrance)
+                    if (await Spells.SmnRuin2.Cast(Core.Me.CurrentTarget))
+                        return true;
             return await Spells.EnkindleBahamut.Cast(Core.Me.CurrentTarget);
         }
     }

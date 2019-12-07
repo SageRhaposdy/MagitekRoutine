@@ -35,6 +35,31 @@ namespace Magitek.Logic.Paladin
 
             if (!canCoS)
                 return false;
+
+            if (Spells.FightorFlight.Cooldown.Seconds <= 8 && !Core.Me.CurrentTarget.HasAura(Auras.GoringBlade, true, 8000))
+            {
+                //Right we want to check if we want to hold CoS.
+                if (Casting.LastSpell == Spells.FastBlade)
+                    return false;
+
+                if (Casting.LastSpell == Spells.RiotBlade)
+                    return false;
+
+                if (Casting.LastSpell == Spells.Confiteor)
+                    return false;
+
+                if (Casting.LastSpell == Spells.HolySpirit)
+                    return false;
+
+                if (Casting.LastSpell == Spells.Atonement)
+                    return false;
+
+                if (Casting.LastSpell == Spells.Intervene)
+                    return false;
+
+                return await Spells.CircleofScorn.Cast(Core.Me);
+            }
+
             return await Spells.CircleofScorn.Cast(Core.Me);
         }
 
@@ -74,9 +99,6 @@ namespace Magitek.Logic.Paladin
             if (Combat.Enemies.Count(r => r.ValidAttackUnit() && r.Distance(Core.Me) <= 5 + r.CombatReach) < PaladinSettings.Instance.TotalEclipseEnemies)
                 return false;
 
-            if (Core.Me.HasAura(Auras.FightOrFight))
-                return false;
-
             if (!Core.Me.HasAura(Auras.Requiescat))
                 return await Spells.Requiescat.Cast(Core.Me.CurrentTarget);
 
@@ -98,7 +120,7 @@ namespace Magitek.Logic.Paladin
                 return false;
 
             if (!Core.Me.HasAura(Auras.Requiescat, true,
-                2600))
+                3000))
                 return await Spells.Confiteor.Cast(Core.Me.CurrentTarget);
 
             if (Core.Me.CurrentMana > 4000)

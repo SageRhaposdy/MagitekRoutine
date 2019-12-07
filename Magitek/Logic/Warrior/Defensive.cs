@@ -34,13 +34,12 @@ namespace Magitek.Logic.Warrior
             if (tankBuster == null)
                 return false;
 
-            if (tankBuster.InnerBeast && targetIsMe && ActionResourceManager.Warrior.BeastGauge >= 50 && await Spells.InnerBeast.Cast(Core.Me.CurrentTarget)) return true;
-            if (tankBuster.Holmgang && targetIsMe && await Spells.Holmgang.CastAura(Core.Me.CurrentTarget, Utilities.Auras.Holmgang)) return true;
-            if (tankBuster.ReprisalWar && await Spells.Reprisal.CastAura(Core.Me.CurrentTarget, Utilities.Auras.Reprisal)) return true;
-            if (tankBuster.Vengeance && targetIsMe && await Spells.Vengeance.CastAura(Core.Me, Utilities.Auras.Vengeance)) return true;
-            if (tankBuster.RawIntuition && targetIsMe && await Spells.RawIntuition.CastAura(Core.Me, Utilities.Auras.RawIntuition)) return true;
-            return tankBuster.RampartWar && targetIsMe && await Spells.Rampart.CastAura(Core.Me, Utilities.Auras.Rampart);
-        }
+			if (tankBuster.RawIntuition && targetIsMe && await Spells.RawIntuition.CastAura(Core.Me, Utilities.Auras.RawIntuition)) return true;
+			if (tankBuster.ReprisalWar && await Spells.Reprisal.CastAura(Core.Me.CurrentTarget, Utilities.Auras.Reprisal)) return true;
+			if (tankBuster.RampartWar && targetIsMe && await Spells.Rampart.CastAura(Core.Me, Utilities.Auras.Rampart)) ;
+			if (tankBuster.Vengeance && targetIsMe && await Spells.Vengeance.CastAura(Core.Me, Utilities.Auras.Vengeance)) return true;
+			return (tankBuster.Holmgang && targetIsMe && await Spells.Holmgang.CastAura(Core.Me.CurrentTarget, Utilities.Auras.Holmgang));
+		}
 
         public static async Task<bool> Defensives()
         {
@@ -82,6 +81,15 @@ namespace Magitek.Logic.Warrior
             #endregion
 
             if (await Tank.Rampart(WarriorSettings.Instance)) return true;
+
+            /*public static async Task<bool> ThrillofBattle()
+            {
+                if (!WarriorSettings.Instance.UseThrillOfBattle)
+                    return false;
+                if (Core.Me.CurrentHealthPercent > WarriorSettings.Instance.ThrillOfBattleHpPercentage)
+
+                    return await Spells.ThrillofBattle.Cast(Core.Me);
+            }*/
 
             #region ShakeItOff
             if (WarriorSettings.Instance.UseShakeItOff)

@@ -4,10 +4,10 @@ using System.Linq;
 using Clio.Utilities.Collections;
 using ff14bot;
 using ff14bot.AClasses;
+using ff14bot.Behavior;
 using ff14bot.Enums;
 using ff14bot.Managers;
 using ff14bot.Objects;
-using Magitek.Enumerations;
 using Magitek.Extensions;
 using Magitek.Models;
 using Magitek.Models.Account;
@@ -40,35 +40,10 @@ namespace Magitek
 {
     public class Magitek
     {
+        private DateTime _pulseLimiter, _saveFormTime;
         public void Initialize()
         {
             Logger.WriteInfo("Initializing ...");
-
-            var patternFinder = new GreyMagic.PatternFinder(Core.Memory);
-            var intPtr = patternFinder.Find("Search 48 8D 0D ? ? ? ? E8 ? ? ? ? 48 8D 0D ? ? ? ? E8 ? ? ? ? EB AB Add 3 TraceRelative");
-            var languageByte = Core.Memory.Read<byte>(intPtr);
-
-            switch (languageByte)
-            {
-                case 1:
-                    Globals.Language = GameVersion.English;
-                    break;
-                case 2:
-                    Globals.Language = GameVersion.English;
-                    break;
-                case 3:
-                    Globals.Language = GameVersion.English;
-                    break;
-                case 4:
-                    Globals.Language = GameVersion.Chinese;
-                    break;
-                default:
-                    Globals.Language = GameVersion.English;
-                    break;
-            }
-
-            Logger.WriteInfo($"Current Language: {Globals.Language}");
-            RotationManager.Reset();
             ViewModels.BaseSettings.Instance.RoutineSelectedInUi = RotationManager.CurrentRotation.ToString();
             DispelManager.Reset();
             InterruptsAndStunsManager.Reset();
@@ -78,6 +53,8 @@ namespace Magitek
             TreeRoot.OnStop += OnStop;
             CurrentZone = WorldManager.ZoneId;
             CurrentJob = Core.Me.CurrentJob;
+
+            HookBehaviors();
 
             Application.Current.Dispatcher.Invoke(delegate
             {
@@ -92,12 +69,10 @@ namespace Magitek
             Logger.WriteInfo("Initialized");
         }
 
-        private void OnStart(BotBase bot)
+        public void OnStart(BotBase bot)
         {
-            if (BaseSettings.Instance.UseOverlay)
-            {
-                StartMainOverlay();
-            }
+            // Reset Zoom Limit based on ZoomHack Setting
+            ZoomHack.Toggle();
 
             Logic.OpenerLogic.InOpener = false;
             Logic.OpenerLogic.OpenerQueue.Clear();
@@ -106,9 +81,11 @@ namespace Magitek
             // Apply the gambits we have
             GambitsViewModel.Instance.ApplyGambits();
             OpenersViewModel.Instance.ApplyOpeners();
+            StartMainOverlay();
+            HookBehaviors();
         }
 
-        private void OnStop(BotBase bot)
+        public void OnStop(BotBase bot)
         {
             StopMainOverlay();
             TogglesViewModel.Instance.SaveToggles();
@@ -134,7 +111,7 @@ namespace Magitek
                     TogglesManager.LoadTogglesForCurrentJob();
                 });
 
-                RotationManager.Reset();
+                HookBehaviors();
                 DispelManager.Reset();
                 InterruptsAndStunsManager.Reset();
                 TankBusterManager.ResetHealers();
@@ -160,11 +137,11 @@ namespace Magitek
             Combat.AdjustCombatTime();
             Combat.AdjustDutyTime();
 
-            Debug.Instance.InCombatTime = Combat.CombatTime.Elapsed.Seconds;
-            Debug.Instance.OutOfCombatTime = Combat.OutOfCombatTime.Elapsed.Seconds;
-            Debug.Instance.InCombatMovingTime = Combat.MovingInCombatTime.Elapsed.Seconds;
-            Debug.Instance.NotMovingInCombatTime = Combat.NotMovingInCombatTime.Elapsed.Seconds;
-            Debug.Instance.DutyTime = Combat.DutyTime.Elapsed.Seconds;
+            Debug.Instance.InCombatTime = (long)Combat.CombatTime.Elapsed.TotalSeconds;
+            Debug.Instance.OutOfCombatTime = (int)Combat.OutOfCombatTime.Elapsed.TotalSeconds;
+            Debug.Instance.InCombatMovingTime = (int)Combat.MovingInCombatTime.Elapsed.TotalSeconds;
+            Debug.Instance.NotMovingInCombatTime = (int)Combat.NotMovingInCombatTime.Elapsed.TotalSeconds;
+            Debug.Instance.DutyTime = (long)Combat.DutyTime.Elapsed.TotalSeconds;
             Debug.Instance.DutyState = Duty.State();
             Debug.Instance.CastingGambit = Casting.CastingGambit;
 
@@ -181,9 +158,6 @@ namespace Magitek
                 Debug.Instance.Enmity = new AsyncObservableCollection<Enmity>(EnmityManager.EnmityList);
             }
 
-            // Reset Zoom Limit based on ZoomHack Setting
-            ZoomHack.Toggle();
-
             if (Core.Me.HasTarget)
             {
                 if (BaseSettings.Instance.DebugEnemyInfo)
@@ -191,6 +165,38 @@ namespace Magitek
                     Debug.Instance.IsBoss = XivDataHelper.BossDictionary.ContainsKey(Core.Me.CurrentTarget.NpcId) ? "True" : "False";
                     Debug.Instance.TargetCombatTimeLeft = Core.Me.CurrentTarget.CombatTimeLeft();
                 }
+            }
+
+            if (DateTime.Now < _pulseLimiter) return;
+            _pulseLimiter = DateTime.Now.AddSeconds(1);
+
+            if (DateTime.Now > _saveFormTime)
+            {
+
+                Dispelling.Instance.Save();
+                InterruptsAndStuns.Instance.Save();
+                TankBusters.Instance.Save();
+                TogglesViewModel.Instance.SaveToggles();
+
+                #region Save Settings For All Routines
+                ScholarSettings.Instance.Save();
+                WhiteMageSettings.Instance.Save();
+                AstrologianSettings.Instance.Save();
+                PaladinSettings.Instance.Save();
+                DarkKnightSettings.Instance.Save();
+                WarriorSettings.Instance.Save();
+                BardSettings.Instance.Save();
+                MachinistSettings.Instance.Save();
+                DragoonSettings.Instance.Save();
+                MonkSettings.Instance.Save();
+                NinjaSettings.Instance.Save();
+                SamuraiSettings.Instance.Save();
+                BlackMageSettings.Instance.Save();
+                RedMageSettings.Instance.Save();
+                SummonerSettings.Instance.Save();
+                #endregion
+
+                _saveFormTime = DateTime.Now.AddSeconds(60);
             }
         }
 
@@ -220,7 +226,6 @@ namespace Magitek
             Dispelling.Instance.Save();
             InterruptsAndStuns.Instance.Save();
             TankBusters.Instance.Save();
-            AuthenticationSettings.Instance.Save();
             TogglesViewModel.Instance.SaveToggles();
 
             var hotkeys = HotkeyManager.RegisteredHotkeys.Select(r => r.Name).Where(r => r.Contains("Magitek"));
@@ -239,6 +244,8 @@ namespace Magitek
                 return;
 
             Form.Show();
+
+            StartMainOverlay();
         }
 
         private static SettingsWindow _form;
@@ -256,8 +263,8 @@ namespace Magitek
                 return _form;
             }
         }
-        
-        private void StartMainOverlay()
+
+        public static void StartMainOverlay()
         {
             if (!BaseSettings.Instance.UseOverlay)
                 return;
@@ -265,19 +272,78 @@ namespace Magitek
             OverlayManager.StartMainOverlay();
         }
 
-        private void StopMainOverlay()
+        public static void StopMainOverlay()
         {
             OverlayManager.StopMainOverlay();
         }
 
-        #region Rotations
-        public static Composite CombatBehavior { get; set; }
-        public static Composite HealBehavior { get; set; }
-        public static Composite PullBehavior { get; set; }
-        public static Composite PreCombatBuffBehavior { get; set; }
-        public static Composite PullBuffBehavior { get; set; }
-        public static Composite CombatBuffBehavior { get; set; }
-        public static Composite RestBehavior { get; set; }
-        #endregion
+        #region Behavior Composites
+
+        public void HookBehaviors()
+        {
+            Logger.Write("Hooking behaviors");
+            TreeHooks.Instance.ReplaceHook("Rest", RestBehavior);
+            TreeHooks.Instance.ReplaceHook("PreCombatBuff", PreCombatBuffBehavior);
+            TreeHooks.Instance.ReplaceHook("Pull", PullBehavior);
+            TreeHooks.Instance.ReplaceHook("Heal", HealBehavior);
+            TreeHooks.Instance.ReplaceHook("CombatBuff", CombatBuffBehavior);
+            TreeHooks.Instance.ReplaceHook("Combat", CombatBehavior);
+        }
+
+        public Composite RestBehavior
+        {
+            get
+            {
+                return new Decorator(new PrioritySelector(new Decorator(r => WorldManager.InPvP, new ActionRunCoroutine(ctx => RotationManager.Rotation.PvP())),
+                    new ActionRunCoroutine(ctx => RotationManager.Rotation.Rest())));
+            }
+        }
+
+        public Composite PreCombatBuffBehavior
+        {
+            get
+            {
+                return new Decorator(new PrioritySelector(new Decorator(r => WorldManager.InPvP, new ActionRunCoroutine(ctx => RotationManager.Rotation.PvP())),
+                    new ActionRunCoroutine(ctx => RotationManager.Rotation.PreCombatBuff())));
+            }
+        }
+
+        public Composite PullBehavior
+        {
+            get
+            {
+                return new Decorator(new PrioritySelector(new Decorator(r => WorldManager.InPvP, new ActionRunCoroutine(ctx => RotationManager.Rotation.PvP())),
+                    new ActionRunCoroutine(ctx => RotationManager.Rotation.Pull())));
+            }
+        }
+
+        public Composite HealBehavior
+        {
+            get
+            {
+                return new Decorator(new PrioritySelector(new Decorator(r => WorldManager.InPvP, new ActionRunCoroutine(ctx => RotationManager.Rotation.PvP())),
+                    new ActionRunCoroutine(ctx => RotationManager.Rotation.Heal())));
+            }
+        }
+
+        public Composite CombatBuffBehavior
+        {
+            get
+            {
+                return new Decorator(new PrioritySelector(new Decorator(r => WorldManager.InPvP, new ActionRunCoroutine(ctx => RotationManager.Rotation.PvP())),
+                    new ActionRunCoroutine(ctx => RotationManager.Rotation.CombatBuff())));
+            }
+        }
+
+        public Composite CombatBehavior
+        {
+            get
+            {
+                return new Decorator(new PrioritySelector(new Decorator(r => WorldManager.InPvP, new ActionRunCoroutine(ctx => RotationManager.Rotation.PvP())),
+                        new ActionRunCoroutine(ctx => RotationManager.Rotation.Combat())));
+            }
+        }
+
+        #endregion Behavior Composites
     }
 }

@@ -24,6 +24,9 @@ namespace Magitek.Logic.Samurai
             if (Core.Me.HasAura(Auras.MeikyoShisui))
                 return false;
 
+            if (Spells.KaeshiSetsugekka.Cooldown.TotalMilliseconds > 4700 || Spells.KaeshiGoken.Cooldown.TotalMilliseconds > 4700 || Spells.KaeshiHiganbana.Cooldown.TotalMilliseconds > 4700)
+                return false;
+
             if (Utilities.Routines.Samurai.CastDuringMeikyo.Any())
             {
                 Utilities.Routines.Samurai.CastDuringMeikyo.Clear();
@@ -38,9 +41,6 @@ namespace Magitek.Logic.Samurai
             //Don't use mid combo
             if (ActionManager.LastSpell == Spells.Hakaze || ActionManager.LastSpell == Spells.Shifu || ActionManager.LastSpell == Spells.Jinpu || ActionManager.LastSpell == Spells.Fuga
                 || Casting.LastSpell == Spells.Hakaze || Casting.LastSpell == Spells.Shifu || Casting.LastSpell == Spells.Jinpu || Casting.LastSpell == Spells.Fuga)
-                return false;
-
-            if (Core.Me.ClassLevel >= 52 && ActionResourceManager.Samurai.Kenki < 10)
                 return false;
 
             if (!Core.Me.HasAura(Auras.Jinpu, true, 7000) || !Core.Me.HasAura(Auras.Shifu, true, 7000))

@@ -27,7 +27,7 @@ namespace Magitek.Models.Paladin
 
         [Setting]
         [DefaultValue(false)]
-        public bool ShieldOath { get; set; }
+        public bool IronWill { get; set; }
 
         [Setting]
         [DefaultValue(7)]
@@ -36,6 +36,10 @@ namespace Magitek.Models.Paladin
         [Setting]
         [DefaultValue(4000)]
         public int HealthSetting { get; set; }
+
+        [Setting]
+        [DefaultValue(false)]
+        public bool FoFFastBlade { get; set; }
 
         [Setting]
         [DefaultValue(20.0f)]
@@ -88,10 +92,6 @@ namespace Magitek.Models.Paladin
         [Setting]
         [DefaultValue(false)]
         public bool ShieldLobToPullExtraEnemies { get; set; }
-
-        [Setting]
-        [DefaultValue(50.0f)]
-        public float ShieldLobMinTpPercent { get; set; }
 
         [Setting]
         [DefaultValue(true)]
@@ -224,10 +224,6 @@ namespace Magitek.Models.Paladin
         public bool CircleOfScorn { get; set; }
 
         [Setting]
-        [DefaultValue(true)]
-        public bool RoyalAuthorityComboInShieldOath { get; set; }
-
-        [Setting]
         [DefaultValue(PaladinOpenerStrategy.AlwaysUseOpener)]
         public PaladinOpenerStrategy PaladinOpenerStrategy { get; set; }
 
@@ -307,23 +303,6 @@ namespace Magitek.Models.Paladin
 
         #endregion
 
-        public void CycleOpenerStrategy()
-        {
-            switch (PaladinOpenerStrategy)
-            {
-                case PaladinOpenerStrategy.NeverOpener:
-                    PaladinOpenerStrategy = PaladinOpenerStrategy.OpenerOnlyBosses;
-                    break;
-                case PaladinOpenerStrategy.OpenerOnlyBosses:
-                    PaladinOpenerStrategy = PaladinOpenerStrategy.AlwaysUseOpener;
-                    break;
-                case PaladinOpenerStrategy.AlwaysUseOpener:
-                    PaladinOpenerStrategy = PaladinOpenerStrategy.NeverOpener;
-                    break;
-                default:
-                    throw new ArgumentOutOfRangeException();
-            }
-        }
 
         #region PVP
         [Setting]

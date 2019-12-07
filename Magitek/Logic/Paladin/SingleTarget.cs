@@ -35,16 +35,13 @@ namespace Magitek.Logic.Paladin
         
         public static async Task<bool> ShieldLobLostAggro()
         {
-            if (Core.Me.OnPvpMap())
+            if (Globals.OnPvpMap)
                 return false;
 
             if (!PaladinSettings.Instance.ShieldLobLostAggro)
                 return false;
 
             if (BotManager.Current.IsAutonomous)
-                return false;
-
-            if (!DutyManager.InInstance)
                 return false;
 
             var shieldLobTarget = Combat.Enemies.FirstOrDefault(r =>r.Distance(Core.Me) > 5 + r.CombatReach && r.Distance(Core.Me) >= Core.Me.CombatReach + r.CombatReach && r.Distance(Core.Me) <= 15 + r.CombatReach && r.TargetGameObject != Core.Me);
@@ -89,6 +86,21 @@ namespace Magitek.Logic.Paladin
             if (Casting.LastSpell == Spells.FightorFlight)
                 return false;
 
+            if (Spells.FightorFlight.Cooldown.Seconds <= 8 && !Core.Me.CurrentTarget.HasAura(Auras.GoringBlade, true, 8000))
+            {
+                //Right we want to check if we want to hold CoS.
+                if (Casting.LastSpell == Spells.FastBlade)
+                    return false;
+
+                if (Casting.LastSpell == Spells.RiotBlade)
+                    return false;
+
+                if (Casting.LastSpell == Spells.Confiteor)
+                    return false;
+
+                return await Spells.SpiritsWithin.Cast(Core.Me.CurrentTarget);
+            }
+
             return await Spells.SpiritsWithin.Cast(Core.Me.CurrentTarget);
         }
         
@@ -120,7 +132,7 @@ namespace Magitek.Logic.Paladin
                 19000))
                 return false;
 
-            if (PaladinSettings.Instance.FoFFirst && Spells.FightorFlight.Cooldown.Seconds < 10)
+            if (PaladinSettings.Instance.FoFFirst && Spells.FightorFlight.Cooldown.Seconds < 8 && !Core.Me.CurrentTarget.HasAura(Auras.GoringBlade, true, 10000))
                 return false;
 
             if (Core.Me.HasAura(Auras.FightOrFight, true, 3000))

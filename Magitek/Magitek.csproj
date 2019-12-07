@@ -24,7 +24,7 @@
     <DebugSymbols>true</DebugSymbols>
     <DebugType>full</DebugType>
     <Optimize>false</Optimize>
-    <OutputPath>bin\Debug\</OutputPath>
+    <OutputPath>..\..\..\..\..\..\..\NewReborn\Routines\Magitek\</OutputPath>
     <DefineConstants>DEBUG;TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -37,24 +37,6 @@
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
   </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|x64'">
-    <DebugSymbols>true</DebugSymbols>
-    <OutputPath>bin\x64\Debug\</OutputPath>
-    <DefineConstants>DEBUG;TRACE</DefineConstants>
-    <DebugType>full</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
-  <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|x64'">
-    <OutputPath>..\..\..\NewReborn\Routines\Magitek\</OutputPath>
-    <DefineConstants>TRACE</DefineConstants>
-    <Optimize>true</Optimize>
-    <DebugType>pdbonly</DebugType>
-    <PlatformTarget>x64</PlatformTarget>
-    <ErrorReport>prompt</ErrorReport>
-    <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
-  </PropertyGroup>
   <ItemGroup>
     <Reference Include="GreyMagic, Version=1.0.41.0, Culture=neutral, PublicKeyToken=260525fa2b0e778a, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
@@ -64,7 +46,7 @@
       <HintPath>packages\PropertyChanged.Fody.2.1.4\lib\netstandard1.0\PropertyChanged.dll</HintPath>
       <Private>False</Private>
     </Reference>
-    <Reference Include="RebornBuddy, Version=1.0.267.0, Culture=neutral, PublicKeyToken=48d7174f8a943034, processorArchitecture=AMD64">
+    <Reference Include="RebornBuddy, Version=1.0.292.0, Culture=neutral, PublicKeyToken=48d7174f8a943034, processorArchitecture=AMD64">
       <SpecificVersion>False</SpecificVersion>
       <HintPath>..\References\RebornBuddy.exe</HintPath>
     </Reference>
@@ -84,6 +66,8 @@
     <Reference Include="PresentationFramework" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="BossFightLog\BossFight.cs" />
+    <Compile Include="BossFightLog\BossFightLogItem.cs" />
     <Compile Include="Commands\AwaitableDelegateCommand.cs" />
     <Compile Include="Commands\AwaitableDelegateCommandT.cs" />
     <Compile Include="Commands\DelegateCommand.cs" />
@@ -91,6 +75,9 @@
     <Compile Include="Commands\IAsyncCommand.cs" />
     <Compile Include="Commands\IAsyncCommandT.cs" />
     <Compile Include="Commands\IRaiseCanExecuteChanged.cs" />
+    <Compile Include="Controls\BossFightLog.xaml.cs">
+      <DependentUpon>BossFightLog.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Controls\CurrentNews.xaml.cs">
       <DependentUpon>CurrentNews.xaml</DependentUpon>
     </Compile>
@@ -147,6 +134,7 @@
     <Compile Include="Converters\SpellIdToSpellData.cs" />
     <Compile Include="Enumerations\BuffStrategy.cs" />
     <Compile Include="Enumerations\ChainStrategemStrategy.cs" />
+    <Compile Include="Enumerations\DancePartnerStrategy.cs" />
     <Compile Include="Enumerations\DragonSightStrategy.cs" />
     <Compile Include="Enumerations\GameVersion.cs" />
     <Compile Include="Enumerations\InterruptStrategy.cs" />
@@ -171,6 +159,7 @@
     <Compile Include="Extensions\SpellDataExtensions.cs" />
     <Compile Include="Extensions\XivDbItemExtensions.cs" />
     <Compile Include="Gambits\Actions\BaseCastSpellAction.cs" />
+    <Compile Include="Gambits\Actions\CastFillerOnCurrentTargetAction.cs" />
     <Compile Include="Gambits\Actions\CastSpellOnAllyAction.cs" />
     <Compile Include="Gambits\Actions\CastSpellOnCurrentTargetAction.cs" />
     <Compile Include="Gambits\Actions\CastSpellOnEnemyAction.cs" />
@@ -200,8 +189,10 @@
     <Compile Include="Gambits\Conditions\MachinistHeatCondition.cs" />
     <Compile Include="Gambits\Conditions\MonkChakraCondition.cs" />
     <Compile Include="Gambits\Conditions\MonkGreasedLightningCondition.cs" />
+    <Compile Include="Gambits\Conditions\MpPercentCondition.cs" />
     <Compile Include="Gambits\Conditions\NinjaHutonCondition.cs" />
     <Compile Include="Gambits\Conditions\NinjaNinkiCondition.cs" />
+    <Compile Include="Gambits\Conditions\NotInInstanceCondition.cs" />
     <Compile Include="Gambits\Conditions\PlayerDoesNotHaveAuraCondition.cs" />
     <Compile Include="Gambits\Conditions\PlayerHasAuraBelowCondition.cs" />
     <Compile Include="Gambits\Conditions\PlayerHasAuraCondition.cs" />
@@ -222,13 +213,13 @@
     <Compile Include="Gambits\Gambit.cs" />
     <Compile Include="Gambits\GambitGroup.cs" />
     <Compile Include="Gambits\SharedOpener.cs" />
-    <Compile Include="Logic\Astrologian\Card.cs" />
+    <Compile Include="Logic\Astrologian\Cards.cs" />
     <Compile Include="Logic\Bard\Aoe.cs" />
-    <Compile Include="Logic\Bard\Buff.cs" />
-    <Compile Include="Logic\Bard\Dispel.cs" />
-    <Compile Include="Logic\Bard\Dot.cs" />
+    <Compile Include="Logic\Bard\Cooldowns.cs" />
+    <Compile Include="Logic\Bard\DamageOverTime.cs" />
     <Compile Include="Logic\Bard\SingleTarget.cs" />
     <Compile Include="Logic\Bard\Songs.cs" />
+    <Compile Include="Logic\Bard\Utility.cs" />
     <Compile Include="Logic\BlackMage\Aoe.cs" />
     <Compile Include="Logic\BlackMage\Buff.cs" />
     <Compile Include="Logic\BlackMage\SingleTarget.cs" />
@@ -248,12 +239,14 @@
     <Compile Include="Logic\Dragoon\Jumps.cs" />
     <Compile Include="Logic\Dragoon\SingleTarget.cs" />
     <Compile Include="Logic\GambitLogic.cs" />
-    <Compile Include="Logic\Machinist\Aoe.cs" />
-    <Compile Include="Logic\Machinist\Buff.cs" />
+    <Compile Include="Logic\Machinist\Utility.cs" />
+    <Compile Include="Logic\Machinist\MultiTarget.cs" />
+    <Compile Include="Logic\Machinist\Cooldowns.cs" />
     <Compile Include="Logic\Machinist\SingleTarget.cs" />
-    <Compile Include="Logic\Machinist\Turret.cs" />
+    <Compile Include="Logic\Machinist\Pet.cs" />
     <Compile Include="Logic\Monk\Aoe.cs" />
     <Compile Include="Logic\Monk\Buff.cs" />
+    <Compile Include="Logic\Monk\PositionalToast.cs" />
     <Compile Include="Logic\Monk\SingleTarget.cs" />
     <Compile Include="Logic\Ninja\Aoe.cs" />
     <Compile Include="Logic\Ninja\Buff.cs" />
@@ -313,7 +306,6 @@
     <Compile Include="Models\Account\AuthenticationSettings.cs" />
     <Compile Include="Models\Account\ZoneSetting.cs" />
     <Compile Include="Models\Account\ZoneSettingEntry.cs" />
-    <Compile Include="Models\Astrologian\AstrologianDefaultCardRules.cs" />
     <Compile Include="Models\Astrologian\AstrologianZoneSettings.cs" />
     <Compile Include="Models\Authentication\ClientSession.cs" />
     <Compile Include="Models\Bard\BardSettings.cs" />
@@ -372,125 +364,23 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
-    <Compile Include="Rotations\Bard\Combat.cs" />
-    <Compile Include="Rotations\Bard\CombatBuff.cs" />
-    <Compile Include="Rotations\Bard\Heal.cs" />
-    <Compile Include="Rotations\Bard\PreCombatBuff.cs" />
-    <Compile Include="Rotations\Bard\Pull.cs" />
-    <Compile Include="Rotations\Bard\PullBuff.cs" />
-    <Compile Include="Rotations\Bard\Rest.cs" />
-    <Compile Include="Rotations\BlackMage\Combat.cs" />
-    <Compile Include="Rotations\BlackMage\CombatBuff.cs" />
-    <Compile Include="Rotations\BlackMage\Heal.cs" />
-    <Compile Include="Rotations\BlackMage\PreCombatBuff.cs" />
-    <Compile Include="Rotations\BlackMage\Pull.cs" />
-    <Compile Include="Rotations\BlackMage\PullBuff.cs" />
-    <Compile Include="Rotations\BlackMage\Rest.cs" />
-    <Compile Include="Rotations\Gunbreaker\Combat.cs" />
-    <Compile Include="Rotations\Gunbreaker\CombatBuff.cs" />
-    <Compile Include="Rotations\Gunbreaker\Heal.cs" />
-    <Compile Include="Rotations\Gunbreaker\PreCombatBuff.cs" />
-    <Compile Include="Rotations\Gunbreaker\Pull.cs" />
-    <Compile Include="Rotations\Gunbreaker\PullBuff.cs" />
-    <Compile Include="Rotations\Gunbreaker\Rest.cs" />
-    <Compile Include="Rotations\DarkKnight\Combat.cs" />
-    <Compile Include="Rotations\DarkKnight\CombatBuff.cs" />
-    <Compile Include="Rotations\DarkKnight\Heal.cs" />
-    <Compile Include="Rotations\DarkKnight\PreCombatBuff.cs" />
-    <Compile Include="Rotations\DarkKnight\Pull.cs" />
-    <Compile Include="Rotations\DarkKnight\PullBuff.cs" />
-    <Compile Include="Rotations\DarkKnight\Rest.cs" />
-    <Compile Include="Rotations\Dragoon\Combat.cs" />
-    <Compile Include="Rotations\Dragoon\CombatBuff.cs" />
-    <Compile Include="Rotations\Dragoon\Heal.cs" />
-    <Compile Include="Rotations\Dragoon\PreCombatBuff.cs" />
-    <Compile Include="Rotations\Dragoon\Pull.cs" />
-    <Compile Include="Rotations\Dragoon\PullBuff.cs" />
-    <Compile Include="Rotations\Dragoon\Rest.cs" />
-    <Compile Include="Rotations\Machinist\Combat.cs" />
-    <Compile Include="Rotations\Machinist\CombatBuff.cs" />
-    <Compile Include="Rotations\Machinist\Heal.cs" />
-    <Compile Include="Rotations\Machinist\PreCombatBuff.cs" />
-    <Compile Include="Rotations\Machinist\Pull.cs" />
-    <Compile Include="Rotations\Machinist\PullBuff.cs" />
-    <Compile Include="Rotations\Machinist\Rest.cs" />
-    <Compile Include="Rotations\Monk\Combat.cs" />
-    <Compile Include="Rotations\Monk\CombatBuff.cs" />
-    <Compile Include="Rotations\Monk\Heal.cs" />
-    <Compile Include="Rotations\Monk\PreCombatBuff.cs" />
-    <Compile Include="Rotations\Monk\Pull.cs" />
-    <Compile Include="Rotations\Monk\PullBuff.cs" />
-    <Compile Include="Rotations\Monk\Rest.cs" />
-    <Compile Include="Rotations\Ninja\Combat.cs" />
-    <Compile Include="Rotations\Ninja\CombatBuff.cs" />
-    <Compile Include="Rotations\Ninja\Heal.cs" />
-    <Compile Include="Rotations\Ninja\PreCombatBuff.cs" />
-    <Compile Include="Rotations\Ninja\Pull.cs" />
-    <Compile Include="Rotations\Ninja\PullBuff.cs" />
-    <Compile Include="Rotations\Ninja\Rest.cs" />
-    <Compile Include="Rotations\Paladin\Combat.cs" />
-    <Compile Include="Rotations\Paladin\CombatBuff.cs" />
-    <Compile Include="Rotations\Paladin\Heal.cs" />
-    <Compile Include="Rotations\Paladin\PreCombatBuff.cs" />
-    <Compile Include="Rotations\Paladin\Pull.cs" />
-    <Compile Include="Rotations\Paladin\PullBuff.cs" />
-    <Compile Include="Rotations\Paladin\Rest.cs" />
-    <Compile Include="Rotations\RedMage\Combat.cs" />
-    <Compile Include="Rotations\RedMage\CombatBuff.cs" />
-    <Compile Include="Rotations\RedMage\Heal.cs" />
-    <Compile Include="Rotations\RedMage\PreCombatBuff.cs" />
-    <Compile Include="Rotations\RedMage\Pull.cs" />
-    <Compile Include="Rotations\RedMage\PullBuff.cs" />
-    <Compile Include="Rotations\RedMage\Rest.cs" />
-    <Compile Include="Rotations\Dancer\Combat.cs" />
-    <Compile Include="Rotations\Dancer\CombatBuff.cs" />
-    <Compile Include="Rotations\Dancer\Heal.cs" />
-    <Compile Include="Rotations\Dancer\PreCombatBuff.cs" />
-    <Compile Include="Rotations\Dancer\Pull.cs" />
-    <Compile Include="Rotations\Dancer\PullBuff.cs" />
-    <Compile Include="Rotations\Dancer\Rest.cs" />
-    <Compile Include="Rotations\Samurai\Combat.cs" />
-    <Compile Include="Rotations\Samurai\CombatBuff.cs" />
-    <Compile Include="Rotations\Samurai\Heal.cs" />
-    <Compile Include="Rotations\Samurai\PreCombatBuff.cs" />
-    <Compile Include="Rotations\Samurai\Pull.cs" />
-    <Compile Include="Rotations\Samurai\PullBuff.cs" />
-    <Compile Include="Rotations\Samurai\Rest.cs" />
-    <Compile Include="Rotations\Scholar\Combat.cs" />
-    <Compile Include="Rotations\Scholar\CombatBuff.cs" />
-    <Compile Include="Rotations\Scholar\Heal.cs" />
-    <Compile Include="Rotations\Scholar\PreCombatBuff.cs" />
-    <Compile Include="Rotations\Scholar\Pull.cs" />
-    <Compile Include="Rotations\Scholar\PullBuff.cs" />
-    <Compile Include="Rotations\Scholar\Rest.cs" />
-    <Compile Include="Rotations\Summoner\Combat.cs" />
-    <Compile Include="Rotations\Summoner\CombatBuff.cs" />
-    <Compile Include="Rotations\Summoner\Heal.cs" />
-    <Compile Include="Rotations\Summoner\PreCombatBuff.cs" />
-    <Compile Include="Rotations\Summoner\Pull.cs" />
-    <Compile Include="Rotations\Summoner\PullBuff.cs" />
-    <Compile Include="Rotations\Summoner\Rest.cs" />
-    <Compile Include="Rotations\Warrior\Combat.cs" />
-    <Compile Include="Rotations\Warrior\CombatBuff.cs" />
-    <Compile Include="Rotations\Warrior\Heal.cs" />
-    <Compile Include="Rotations\Warrior\PreCombatBuff.cs" />
-    <Compile Include="Rotations\Warrior\Pull.cs" />
-    <Compile Include="Rotations\Warrior\PullBuff.cs" />
-    <Compile Include="Rotations\Warrior\Rest.cs" />
-    <Compile Include="Rotations\Astrologian\Combat.cs" />
-    <Compile Include="Rotations\Astrologian\CombatBuff.cs" />
-    <Compile Include="Rotations\Astrologian\Heal.cs" />
-    <Compile Include="Rotations\Astrologian\PreCombatBuff.cs" />
-    <Compile Include="Rotations\Astrologian\Pull.cs" />
-    <Compile Include="Rotations\Astrologian\PullBuff.cs" />
-    <Compile Include="Rotations\Astrologian\Rest.cs" />
-    <Compile Include="Rotations\WhiteMage\Combat.cs" />
-    <Compile Include="Rotations\WhiteMage\CombatBuff.cs" />
-    <Compile Include="Rotations\WhiteMage\Heal.cs" />
-    <Compile Include="Rotations\WhiteMage\PreCombatBuff.cs" />
-    <Compile Include="Rotations\WhiteMage\Pull.cs" />
-    <Compile Include="Rotations\WhiteMage\PullBuff.cs" />
-    <Compile Include="Rotations\WhiteMage\Rest.cs" />
+    <Compile Include="Rotations\Astrologian.cs" />
+    <Compile Include="Rotations\BlackMage.cs" />
+    <Compile Include="Rotations\Warrior.cs" />
+    <Compile Include="Rotations\DarkKnight.cs" />
+    <Compile Include="Rotations\Dragoon.cs" />
+    <Compile Include="Rotations\Gunbreaker.cs" />
+    <Compile Include="Rotations\Machinist.cs" />
+    <Compile Include="Rotations\Monk.cs" />
+    <Compile Include="Rotations\Ninja.cs" />
+    <Compile Include="Rotations\Paladin.cs" />
+    <Compile Include="Rotations\RedMage.cs" />
+    <Compile Include="Rotations\Samurai.cs" />
+    <Compile Include="Rotations\Scholar.cs" />
+    <Compile Include="Rotations\Summoner.cs" />
+    <Compile Include="Rotations\Dancer.cs" />
+    <Compile Include="Rotations\Bard.cs" />
+    <Compile Include="Rotations\WhiteMage.cs" />
     <Compile Include="Toggles\SettingsHandler.cs" />
     <Compile Include="Toggles\SettingsToggle.cs" />
     <Compile Include="Toggles\SettingsToggleSetting.cs" />
@@ -516,6 +406,7 @@
     <Compile Include="Utilities\OverlayManager.cs" />
     <Compile Include="Utilities\Routines\Dancer.cs" />
     <Compile Include="Utilities\Routines\Gunbreaker.cs" />
+    <Compile Include="Utilities\Weaving.cs" />
     <Compile Include="Utilities\ZoomHack.cs" />
     <Compile Include="Utilities\Duty.cs" />
     <Compile Include="Utilities\Globals.cs" />
@@ -545,8 +436,8 @@
     <Compile Include="Utilities\Spells.cs" />
     <Compile Include="Utilities\Tracking.cs" />
     <Compile Include="Utilities\XivDataHelper.cs" />
-    <Compile Include="ViewModels\AstrologianCardRules.cs" />
     <Compile Include="ViewModels\BaseSettings.cs" />
+    <Compile Include="ViewModels\BossFightViewModel.cs" />
     <Compile Include="ViewModels\Debug.cs" />
     <Compile Include="ViewModels\Dispelling.cs" />
     <Compile Include="ViewModels\GambitsBrowser.cs" />
@@ -567,14 +458,8 @@
     <Compile Include="Views\UserControls\Astrologian\Alliance.xaml.cs">
       <DependentUpon>Alliance.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\UserControls\Astrologian\BuffExtenders.xaml.cs">
-      <DependentUpon>BuffExtenders.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\UserControls\Astrologian\Buffs.xaml.cs">
       <DependentUpon>Buffs.xaml</DependentUpon>
-    </Compile>
-    <Compile Include="Views\UserControls\Astrologian\CardRules.xaml.cs">
-      <DependentUpon>CardRules.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\UserControls\Astrologian\Pvp.xaml.cs">
       <DependentUpon>Pvp.xaml</DependentUpon>
@@ -600,14 +485,20 @@
     <Compile Include="Views\UserControls\Bard\Aoe.xaml.cs">
       <DependentUpon>Aoe.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\UserControls\Bard\Buffs.xaml.cs">
-      <DependentUpon>Buffs.xaml</DependentUpon>
+    <Compile Include="Views\UserControls\Bard\Cooldowns.xaml.cs">
+      <DependentUpon>Cooldowns.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UserControls\Bard\DamageOverTime.xaml.cs">
+      <DependentUpon>DamageOverTime.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\UserControls\Bard\SingleTarget.xaml.cs">
       <DependentUpon>SingleTarget.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\UserControls\Bard\Songs.xaml.cs">
       <DependentUpon>Songs.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UserControls\Bard\Utilities.xaml.cs">
+      <DependentUpon>Utilities.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\UserControls\BlackMage\Aoe.xaml.cs">
       <DependentUpon>Aoe.xaml</DependentUpon>
@@ -668,9 +559,6 @@
     <Compile Include="Views\UserControls\DarkKnight\Combat.xaml.cs">
       <DependentUpon>Combat.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\UserControls\DarkKnight\DarkArts.xaml.cs">
-      <DependentUpon>DarkArts.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\UserControls\DarkKnight\Defensives.xaml.cs">
       <DependentUpon>Defensives.xaml</DependentUpon>
     </Compile>
@@ -714,6 +602,9 @@
     </Compile>
     <Compile Include="Views\UserControls\Machinist\Turrets.xaml.cs">
       <DependentUpon>Turrets.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\UserControls\Machinist\Utilities.xaml.cs">
+      <DependentUpon>Utilities.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\UserControls\MainSettingsOverlay.xaml.cs">
       <DependentUpon>MainSettingsOverlay.xaml</DependentUpon>
@@ -862,6 +753,10 @@
     <EmbeddedResource Include="Resources\BossDictionary.json" />
   </ItemGroup>
   <ItemGroup>
+    <Page Include="Controls\BossFightLog.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Controls\CurrentNews.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -987,15 +882,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\UserControls\Astrologian\BuffExtenders.xaml">
-      <Generator>MSBuild:Compile</Generator>
-      <SubType>Designer</SubType>
-    </Page>
     <Page Include="Views\UserControls\Astrologian\Buffs.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\UserControls\Astrologian\CardRules.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1031,15 +918,23 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\UserControls\Bard\Buffs.xaml">
+    <Page Include="Views\UserControls\Bard\Cooldowns.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\UserControls\Bard\SingleTarget.xaml">
+    <Page Include="Views\UserControls\Bard\DamageOverTime.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\UserControls\Bard\Songs.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UserControls\Bard\Utilities.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\UserControls\Bard\SingleTarget.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -1121,10 +1016,6 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\UserControls\DarkKnight\DarkArts.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
     <Page Include="Views\UserControls\DarkKnight\Defensives.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -1180,8 +1071,12 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\UserControls\Machinist\Turrets.xaml">
-      <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
+    </Page>
+    <Page Include="Views\UserControls\Machinist\Utilities.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Views\UserControls\MainSettingsOverlay.xaml">
       <SubType>Designer</SubType>

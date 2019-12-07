@@ -9,187 +9,181 @@ using Magitek.Models.Bard;
 using Magitek.Utilities;
 using Auras = Magitek.Utilities.Auras;
 using ff14bot;
+using Magitek.Enumerations;
+using QuickGraph;
 
 namespace Magitek.Logic.Bard
 {
     internal static class SingleTarget
     {
+
+        public static async Task<bool> HeavyShot()
+        {
+            if (!BardSettings.Instance.UseHeavyShot)
+                return false;
+
+            if (Core.Me.ClassLevel < 76)
+                return await Spells.HeavyShot.Cast(Core.Me.CurrentTarget);
+
+            return await Spells.BurstShot.Cast(Core.Me.CurrentTarget);
+        }
+
         public static async Task<bool> StraightShot()
         {
+            if (!BardSettings.Instance.UseStraightShot)
+                return false;
+
             if (!Core.Me.HasAura(Auras.StraighterShot))
                 return false;
 
-            // If we don't have Barrage, cast it
-            if (!ActionManager.HasSpell(Spells.Barrage.Id))
+            if (Core.Me.ClassLevel < 70)
                 return await Spells.StraightShot.Cast(Core.Me.CurrentTarget);
 
-            return await Spells.StraightShot.Cast(Core.Me.CurrentTarget);
+            return await Spells.RefulgentArrow.Cast(Core.Me.CurrentTarget);
         }
 
-        public static async Task<bool> RefulgentBarrage()
+        public static async Task<bool> StraightShotAfterBarrage()
         {
-            if (!BardSettings.Instance.Barrage)
+            if (!Core.Me.HasAura(Auras.Barrage))
                 return false;
 
-            if (BardSettings.Instance.BarrageOnlyWithRagingStrikes && !Core.Me.HasAura(Auras.RagingStrikes))
+            if (!BardSettings.Instance.UseStraightShot)
                 return false;
 
-            if (Spells.Barrage.Cooldown != TimeSpan.Zero)
-                return false;
+            
+            if (Core.Me.ClassLevel < 70)
+                if (await Spells.StraightShot.Cast(Core.Me.CurrentTarget))
+                    return true;
 
-            return await BarrageCombo();
+            if (await Spells.RefulgentArrow.Cast(Core.Me.CurrentTarget))
+                return true;
 
-            // Handle Barrage + Straighter Shot
-            async Task<bool> BarrageCombo()
-            {
-                if (await Spells.Barrage.Cast(Core.Me))
-                    await Coroutine.Wait(1000, () => Core.Me.HasAura(Auras.Barrage));
-                else
-                    return false;
-
-                while (Core.Me.HasAura(Auras.Barrage))
-                {
-                    if (await Spells.StraightShot.Cast(Core.Me.CurrentTarget))
-                        return true;
-
-                    await Coroutine.Yield();
-                }
-
-                return false;
-            }
+            return true; //We want to check for more oGCDs while waiting for our GCD
         }
 
-        public static async Task<bool> EmpyrealArrow()
+        public static async Task<bool> LastPossiblePitchPerfectDuringWM()
         {
-            if (ActionResourceManager.Bard.ActiveSong == ActionResourceManager.Bard.BardSong.None)
+            if (!BardSettings.Instance.UsePitchPerfect)
                 return false;
 
-            return await Spells.EmpyrealArrow.Cast(Core.Me.CurrentTarget);
+            if (Spells.PitchPerfect.Cooldown != TimeSpan.Zero)
+                return false;
+
+            if (ActionResourceManager.Bard.ActiveSong != ActionResourceManager.Bard.BardSong.WanderersMinuet)
+                return false;
+
+            if (ActionResourceManager.Bard.Timer.TotalMilliseconds - Utilities.Routines.Bard.TimeUntilNextPossibleDoTTick() > 500)
+                return false;
+
+            return await Spells.PitchPerfect.Cast(Core.Me.CurrentTarget);
+
         }
 
+        public static async Task<bool> PitchPerfect()
+        {
+            if (!BardSettings.Instance.UsePitchPerfect)
+                return false;
+
+            if (Spells.PitchPerfect.Cooldown != TimeSpan.Zero)
+                return false;
+
+            if (ActionResourceManager.Bard.ActiveSong != ActionResourceManager.Bard.BardSong.WanderersMinuet)
+                return false;
+
+            if (ActionResourceManager.Bard.Repertoire == 0)
+                return false;
+
+            if (ActionResourceManager.Bard.Timer.TotalMilliseconds - Utilities.Routines.Bard.TimeUntilNextPossibleDoTTick() < 500)
+                return await Spells.PitchPerfect.Cast(Core.Me.CurrentTarget);
+
+            if (ActionResourceManager.Bard.Repertoire < BardSettings.Instance.UsePitchPerfectAtRepertoire)
+                return false;
+
+            return await Spells.PitchPerfect.Cast(Core.Me.CurrentTarget); 
+        }
+
+        public static async Task<bool> BloodletterInMagesBallard()
+        {
+            if (!BardSettings.Instance.PrioritizeBloodletterDuringMagesBallard)
+                return false;
+
+            if (!ActionManager.HasSpell(Spells.Bloodletter.Id))
+                return false;
+
+            if (ActionResourceManager.Bard.ActiveSong != ActionResourceManager.Bard.BardSong.MagesBallad)
+                return false;
+
+            return await Spells.Bloodletter.Cast(Core.Me.CurrentTarget);
+        }
         public static async Task<bool> Bloodletter()
         {
+            if (!BardSettings.Instance.UseBloodletter)
+                return false;
+
             if (!ActionManager.HasSpell(Spells.Bloodletter.Id))
                 return false;
 
             return await Spells.Bloodletter.Cast(Core.Me.CurrentTarget);
         }
 
-        public static async Task<bool> HeavyShot()
+        public static async Task<bool> EmpyrealArrow()
         {
-            return await Spells.HeavyShot.Cast(Core.Me.CurrentTarget);
-        }
-
-        public static async Task<bool> RepellingShot()
-        {
-            if (!BardSettings.Instance.RepellingShot)
+            if (!BardSettings.Instance.UseEmpyrealArrow)
                 return false;
 
-            if (RoutineManager.IsAnyDisallowed(CapabilityFlags.Movement))
+            if (!ActionManager.HasSpell(Spells.EmpyrealArrow.Id))
                 return false;
 
-            if (BardSettings.Instance.RepellingShotOnlyWhenTargeted)
+            switch (ActionResourceManager.Bard.ActiveSong)
             {
-                var repellingShotTarget = Combat.Enemies.FirstOrDefault(r => r.Distance(Core.Me) <= 5 + r.CombatReach && 
-                                                                             r.InView() && 
-                                                                             ActionManager.CanCast(Spells.RepellingShot.Id, r));
-
-                if (repellingShotTarget == null)
+                case ActionResourceManager.Bard.BardSong.None:
                     return false;
 
-                return await Spells.RepellingShot.Cast(repellingShotTarget);
+                case ActionResourceManager.Bard.BardSong.MagesBallad:
+                    if (Spells.Bloodletter.Cooldown == TimeSpan.Zero)
+                        return false;
+                    break;
+
+                case ActionResourceManager.Bard.BardSong.WanderersMinuet:
+
+                    if (ActionResourceManager.Bard.Repertoire == 3)
+                        return false;
+
+                    if (ActionResourceManager.Bard.Timer.TotalMilliseconds <= 2000 && ActionResourceManager.Bard.Repertoire == 0 && Utilities.Routines.Bard.TimeUntilNextPossibleDoTTick() > ActionResourceManager.Bard.Timer.TotalMilliseconds)
+                        return false;
+
+                    break;
+
+                case ActionResourceManager.Bard.BardSong.ArmysPaeon:
+                    if (BardSettings.Instance.CurrentSongPlaylist == SongStrategy.WM_MB_AP)
+                    {
+                        if (BardSettings.Instance.EndArmysPaeonEarly)
+                        {
+                            if ((ActionResourceManager.Bard.Timer.TotalSeconds - BardSettings.Instance.EndArmysPaeonEarlyWithXSecondsRemaining) < BardSettings.Instance.DontUseEmpyrealArrowWhenSongEndsInXSeconds)
+                                return false;
+                        }
+                    }
+                    break;
+
+                default:
+                    break;
             }
-            else
-            {
-                if (Core.Me.CurrentTarget == null)
-                    return false;
 
-                if (Core.Me.CurrentTarget.Distance(Core.Me) > 5 + Core.Me.CurrentTarget.CombatReach)
-                    return false;
-
-                return await Spells.RepellingShot.Cast(Core.Me.CurrentTarget);
-            }
+            return await Spells.EmpyrealArrow.Cast(Core.Me.CurrentTarget);
         }
 
-        public static async Task<bool> Feint()
+        public static async Task<bool> Sidewinder()
         {
-            if (!BardSettings.Instance.Feint)
+            if (!BardSettings.Instance.UseSidewinder)
                 return false;
 
-            if (!MovementManager.IsMoving)
-                return false;
-
-            if (!ActionManager.HasSpell(Spells.Feint.Id))
-                return false;
-
-            return await Spells.Feint.Cast(Core.Me.CurrentTarget);
-        }
-
-        public static async Task<bool> SidewinderAndShadowbite()
-        {
             if (!ActionManager.HasSpell(Spells.Sidewinder.Id))
                 return false;
 
-            // Make sure both DOTs are on target
             if (!Core.Me.CurrentTarget.HasAllAuras(Utilities.Routines.Bard.DotsList, true))
                 return false;
 
-            // Use only on Trick Attack if the setting is enable and we're in a party
-            if (BardSettings.Instance.UseSideWinderOnlyOnTrick && PartyManager.IsInParty)
-            {
-                if (!Core.Me.CurrentTarget.HasAura(638) || Spells.Sidewinder.Cooldown.Milliseconds != 0)
-                    return false;
-
-                Logger.WriteInfo("Using Sidewinder with Trick Attack");
-                return await Spells.Sidewinder.Cast(Core.Me.CurrentTarget);
-            }
-
-            return await HandleCast();
-
-            async Task<bool> HandleCast()
-            {
-                // At level 63, Shadowbite becomes available
-                if (Core.Me.ClassLevel < 63)
-                    return await Spells.Sidewinder.Cast(Core.Me.CurrentTarget);
-
-                // If there's multiple targets around our target, use Shadowbite
-                if (Core.Me.CurrentTarget.EnemiesNearby(5).Count() > 1)
-                    return await Spells.Shadowbite.Cast(Core.Me.CurrentTarget);
-
-                return await Spells.Sidewinder.Cast(Core.Me.CurrentTarget);
-            }
-        }
-
-        public static async Task<bool> PitchPerfect()
-        {
-            if (!BardSettings.Instance.PerfectPitch)
-                return false;
-
-            if (ActionResourceManager.Bard.ActiveSong != ActionResourceManager.Bard.BardSong.WanderersMinuet)
-                return false;
-
-            if(ActionResourceManager.Bard.Repertoire >= 2 && Utilities.Routines.Bard.SnapShotCheck != 0)
-            {
-                return await Spells.PitchPerfect.Cast(Core.Me.CurrentTarget);
-            }
-
-            if (ActionResourceManager.Bard.Repertoire > 2 || ActionResourceManager.Bard.Repertoire == BardSettings.Instance.PerfectPitchRepertoire)
-            {
-                return await Spells.PitchPerfect.Cast(Core.Me.CurrentTarget);
-            }
-
-            if (ActionResourceManager.Bard.Repertoire == 1 && ActionResourceManager.Bard.Timer.TotalMilliseconds < 2000)
-            {
-                return await Spells.PitchPerfect.Cast(Core.Me.CurrentTarget);
-            }
-
-            if (ActionResourceManager.Bard.Timer.Seconds > 3)
-                return false;
-
-            if (ActionResourceManager.Bard.Repertoire == 1)
-                return false;
-
-            return await Spells.PitchPerfect.Cast(Core.Me.CurrentTarget);
+            return await Spells.Sidewinder.Cast(Core.Me.CurrentTarget);
         }
     }
 }

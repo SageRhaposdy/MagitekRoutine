@@ -34,8 +34,6 @@ namespace Magitek.Logic.Ninja
             if (Casting.SpellCastHistory.Take(5).All(s => s.Spell != Spells.DeathBlossom))
                 return false;
 
-            if (ActionManager.LastSpell == Spells.HakkeMujinsatsu)
-                return false;
 
             if (Combat.Enemies.Count(r => r.Distance(Core.Me) <= 5 + r.CombatReach) < NinjaSettings.Instance.DeathBlossomEnemies)
                 return false;
@@ -51,13 +49,11 @@ namespace Magitek.Logic.Ninja
             if (!NinjaSettings.Instance.UseHellfrogMedium)
                 return false;
 
-            if (ActionResourceManager.Ninja.NinkiGauge < 80)
-                return false;
 
-            if(Core.Me.ClassLevel < 68)
+            if(Core.Me.ClassLevel < 68 && Core.Me.ClassLevel > 62)
                 return await Spells.HellfrogMedium.Cast(Core.Me.CurrentTarget);
 
-            if (Combat.Enemies.Count(r => r.Distance(Core.Me.CurrentTarget) <= 6 + r.CombatReach) < NinjaSettings.Instance.HellfrogMediumEnemies)
+            if (Combat.Enemies.Count(r => r.Distance(Core.Me.CurrentTarget) <= 6 + r.CombatReach) < 2)
                 return false;
 
             return await Spells.HellfrogMedium.Cast(Core.Me.CurrentTarget);

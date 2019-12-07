@@ -7,6 +7,7 @@ using ff14bot.Objects;
 using Magitek.Enumerations;
 using Magitek.Extensions;
 using Magitek.Models.Roles;
+using Magitek.Toggles;
 using Magitek.Utilities;
 using Auras = Magitek.Utilities.Auras;
 
@@ -37,6 +38,17 @@ namespace Magitek.Logic.Roles
                 return false;
 
             return await Spells.TrueNorth.Cast(Core.Me);
+        }
+
+        public static async Task<bool> ArmsLength<T>(T settings) where T : PhysicalDpsSettings
+        {
+            if (!settings.ForceArmsLength)
+                return false;
+
+            if (!await Spells.ArmsLength.Cast(Core.Me)) return false;
+            settings.ForceArmsLength = false;
+            TogglesManager.ResetToggles();
+            return true;
         }
 
         public static async Task<bool> Bloodbath<T>(T settings) where T : PhysicalDpsSettings
@@ -118,25 +130,6 @@ namespace Magitek.Logic.Roles
                 return false;
 
             return await Spells.Peloton.CastAura(Core.Me, Auras.Peloton);
-        }
-
-        public static async Task<bool> Recuperate<T>(T settings) where T : PhysicalDpsSettings
-        {
-            if (!settings.UseRecuperate)
-                return false;
-
-            if (Core.Me.CurrentHealthPercent > settings.RecuperateHealthPercent)
-                return false;
-
-            return await Spells.Recuperate.Cast(Core.Me);
-        }
-
-        public static async Task<bool> Enliven<T>(T settings) where T : PhysicalDpsSettings
-        {
-            if (!settings.UseEnliven)
-                return false;
-
-            return await Spells.Enliven.Cast(Core.Me);
         }
     }
 }

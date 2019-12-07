@@ -1,5 +1,5 @@
-using System;
 using System.Collections.Generic;
+using Magitek.Models.Account;
 
 namespace Magitek.Utilities.Routines
 {
@@ -11,7 +11,8 @@ namespace Magitek.Utilities.Routines
             Auras.Rampart,
             Auras.Sentinel
         };
-        
-        public static bool OnGcd => Spells.FastBlade.Cooldown.TotalMilliseconds > 600;
+
+        public static bool OnGcd => Spells.FastBlade.Cooldown.TotalMilliseconds > 100;
+        public static bool OGCDHold => Spells.FastBlade.Cooldown.TotalMilliseconds < 650 + BaseSettings.Instance.UserLatencyOffset;
     }
 }

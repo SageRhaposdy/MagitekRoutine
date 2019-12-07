@@ -37,14 +37,6 @@ namespace Magitek.ViewModels
         private static BaseSettings _instance;
         public static BaseSettings Instance => _instance ?? (_instance = new BaseSettings());
 
-        private readonly string _magitekFolder = JsonSettings.AssemblyPath + @"\Routines\Magitek\";
-        public string VersionRunning { get; set; }
-
-        public BaseSettings()
-        {
-            VersionRunning = !File.Exists(_magitekFolder + @"version.txt") ? "No Ver." : File.ReadAllText(_magitekFolder + @"version.txt");
-        }
-        
         public ICommand ShowSettingsModal => new DelegateCommand(() =>
         {
             Magitek.Form.ShowModal(new SettingsModal());
@@ -92,56 +84,5 @@ namespace Magitek.ViewModels
         public PositionalState CurrentPosition { get; set; } = PositionalState.None;
         public PositionalState ExpectedPosition { get; set; } = PositionalState.None;
         public PositionalState UpcomingPosition { get; set; } = PositionalState.None;
-
-        public string RecoveryEmail { get; set; }
-        public string RecoveryStatus { get; set; }
-
-        public ICommand RecoverKeys => new AwaitableDelegateCommand(async () =>
-        {
-            var client = new HttpClient();
-
-            try
-            {
-                using (var response = await client.GetAsync($@"https://auth.magitek.io/customers/recoverkeys/{RecoveryEmail.ToLower()}"))
-                {
-                    if (string.IsNullOrEmpty(RecoveryEmail) || string.IsNullOrWhiteSpace(RecoveryEmail))
-                    {
-                        RecoveryStatus = @"You Must Enter A Valid Email";
-                        return;
-                    }
-
-                    try
-                    {
-                        var addr = new System.Net.Mail.MailAddress(RecoveryEmail);
-                        var realEmail = addr.Address == RecoveryEmail;
-
-                        if (!realEmail)
-                        {
-                            RecoveryStatus = @"Is Your Entered Email Correct?";
-                            return;
-                        }
-                    }
-                    catch
-                    {
-                        return;
-                    }
-
-                    if (response.Content == null)
-                    {
-                        RecoveryStatus = @"Didn't Get A Response?";
-                        return;
-                    }
-
-                    if (response.StatusCode == HttpStatusCode.OK)
-                    {
-                        RecoveryStatus = $@"Any Keys Associated With {RecoveryEmail} Have Been Emailed To That Address (Check Junk!)";
-                    }
-                }
-            }
-            catch (Exception e)
-            {
-                RecoveryStatus = $@"{e}";
-            }
-        });
     }
 }

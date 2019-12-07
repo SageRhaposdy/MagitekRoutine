@@ -13,17 +13,70 @@ namespace Magitek.Models.Warrior
         public static WarriorSettings Instance { get; set; } = new WarriorSettings();
 
         [Setting]
-        [DefaultValue(false)]
-        public bool IsMainTank { get; set; }
+        [DefaultValue(20)]
+        public int KeepAtLeastXBeastGauge { get; set; }
+
+        #region Buffs
+        [Setting]
+        [DefaultValue(true)]
+        public bool UseInfuriate { get; set; }
+
+        [Setting]
+        [DefaultValue(50)]
+        public int UseInfuriateAtBeastGauge { get; set; }
 
         [Setting]
         [DefaultValue(true)]
-        public bool UseSteelCyclone { get; set; }
+        public bool UseInnerRelease { get; set; }
+        #endregion
+
+        #region Defensives
+        [Setting]
+        [DefaultValue(true)]
+        public bool UseEquilibrium { get; set; }
 
         [Setting]
-        [DefaultValue(3)]
-        public int SteelCycloneMinimumEnemies { get; set; }
+        [DefaultValue(60)]
+        public int EquilibriumHealthPercent { get; set; }
 
+        [Setting]
+        [DefaultValue(false)]
+        public bool UseRawIntuition { get; set; }
+
+        [Setting]
+        [DefaultValue(50)]
+        public int RawIntuitionHpPercentage { get; set; }
+
+        [Setting]
+        [DefaultValue(false)]
+        public bool UseThrillOfBattle { get; set; }
+
+        [Setting]
+        [DefaultValue(50)]
+        public int ThrillOfBattleHpPercentage { get; set; }
+
+        [Setting]
+        [DefaultValue(false)]
+        public bool UseShakeItOff { get; set; }
+
+        [Setting]
+        [DefaultValue(false)]
+        public bool UseVengeance { get; set; }
+
+        [Setting]
+        [DefaultValue(50)]
+        public int VengeanceHpPercentage { get; set; }
+
+        [Setting]
+        [DefaultValue(false)]
+        public bool UseHolmgang { get; set; }
+
+        [Setting]
+        [DefaultValue(10)]
+        public int HolmgangHpPercentage { get; set; }
+        #endregion
+
+        #region AoEs
         [Setting]
         [DefaultValue(true)]
         public bool UseDecimate { get; set; }
@@ -37,115 +90,40 @@ namespace Magitek.Models.Warrior
         public bool UseOverpower { get; set; }
 
         [Setting]
-        [DefaultValue(false)]
-        public bool OverpowerNeverInterruptCombo { get; set; }
-
-        [Setting]
-        [DefaultValue(3)]
-        public int OverpowerMinimumEnemies { get; set; }
-
-        [Setting]
-        [DefaultValue(true)]
-        public bool UseOverpowerInterval { get; set; }
-
-        [Setting]
-        [DefaultValue(12)]
-        public int OverpowerIntervalSeconds { get; set; }
-
-        [Setting]
         [DefaultValue(2)]
-        public int OverpowersOnPull { get; set; }
+        public int OverpowerMinimumEnemies { get; set; }
+        #endregion
 
+        #region Aggro
         [Setting]
         [DefaultValue(true)]
-        public bool OverpowerOnlyAsMainTank { get; set; }
-
-        [Setting]
-        [DefaultValue(true)]
-        public bool UseRawIntuition { get; set; }
-
-        [Setting]
-        [DefaultValue(50)]
-        public int RawIntuitionHpPercentage { get; set; }
-
-        [Setting]
-        [DefaultValue(true)]
-        public bool UseThrillOfBattle { get; set; }
-
-        [Setting]
-        [DefaultValue(50)]
-        public int ThrillOfBattleHpPercentage { get; set; }
-
-        [Setting]
-        [DefaultValue(true)]
-        public bool UseShakeItOff { get; set; }
-
-        [Setting]
-        [DefaultValue(true)]
-        public bool UseShakeItOffOnAnyDebuff { get; set; }
-
-        [Setting]
-        [DefaultValue(true)]
-        public bool UseVengeance { get; set; }
-
-        [Setting]
-        [DefaultValue(50)]
-        public int VengeanceHpPercentage { get; set; }
-
-        [Setting]
-        [DefaultValue(true)]
-        public bool UseHolmgang { get; set; }
-
-        [Setting]
-        [DefaultValue(10)]
-        public int HolmgangHpPercentage { get; set; }
+        public bool UseDefiance { get; set; }
 
         [Setting]
         [DefaultValue(false)]
         public bool UseTomahawk { get; set; }
 
         [Setting]
-        [DefaultValue(true)]
+        [DefaultValue(false)]
         public bool UseTomahawkToPull { get; set; }
 
         [Setting]
-        [DefaultValue(true)]
+        [DefaultValue(false)]
         public bool UseTomahawkOnLostAggro { get; set; }
 
         [Setting]
         [DefaultValue(false)]
         public bool UseTomahawkToPullExtraEnemies { get; set; }
+        #endregion
 
-        [Setting]
-        [DefaultValue(50.0f)]
-        public float UseTomahawkMinTpPercent { get; set; }
-
+        #region oGCDs
         [Setting]
         [DefaultValue(true)]
         public bool UseOnslaught { get; set; }
 
         [Setting]
-        [DefaultValue(70)]
-        public int UseOnslaughtMinBeastGauge { get; set; }
-
-        [Setting]
         [DefaultValue(true)]
-        public bool AttemptToStayOnTopOfEnmityInMainTankMode { get; set; }
-
-        [Setting]
-        [DefaultValue(10)]
-        public int AttemptToStayOnTopOfEnmityByPercent { get; set; }
-
-        [Setting]
-        [DefaultValue(true)]
-        public bool OpenWithThreatCombo { get; set; }
-
-        [Setting]
-        [DefaultValue(50)]
-        public int UIseInfurateAtBeastGauge { get; set; }
-
-        [Setting]
-        [DefaultValue(true)]
-        public bool UseInnerReleaseDefiance { get; set; }
+        public bool UseUpheaval { get; set; }
+        #endregion
     }
 }

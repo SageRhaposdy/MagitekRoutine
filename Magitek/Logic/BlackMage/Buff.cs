@@ -11,6 +11,9 @@ namespace Magitek.Logic.BlackMage
     {
         public static async Task<bool> Triplecast()
         {
+            if (!BlackMageSettings.Instance.TripleCast)
+                return false;
+
             if (ActionResourceManager.BlackMage.UmbralHearts == 3 && Casting.LastSpell == Spells.Fire3)
                 return await Spells.Triplecast.Cast(Core.Me);
 
@@ -21,7 +24,8 @@ namespace Magitek.Logic.BlackMage
         {
             if (Core.Me.HasEnochian())
                 return false;
-
+            if (Core.Me.ClassLevel < 56)
+                return false;
             return await Spells.Enochian.Cast(Core.Me);
         }
 
@@ -30,9 +34,10 @@ namespace Magitek.Logic.BlackMage
             if (!BlackMageSettings.Instance.Sharpcast)
                 return false;
 
-            // If we're on GCD for more than 700 milliseconds
-            if (Spells.Fire.Cooldown.TotalMilliseconds > 700)
-                return await Spells.Sharpcast.Cast(Core.Me);
+            // If we used something that opens the GCD
+           
+                if (Casting.LastSpell == Spells.Fire3 ||  Casting.LastSpell == Spells.Thunder3 || Core.Me.HasAura(Auras.Triplecast) || Casting.LastSpell == Spells.Xenoglossy) 
+                    return await Spells.Sharpcast.Cast(Core.Me);
             
             return false;
         }
@@ -49,11 +54,14 @@ namespace Magitek.Logic.BlackMage
             if (ActionResourceManager.BlackMage.AstralStacks != 3)
                 return false;
 
-            // Do not Ley Lines if we don't have 3 umbral hearts
-            if (ActionResourceManager.BlackMage.UmbralHearts != 3)
+            // Do not Ley Lines if we don't have any umbral hearts (roundabout check to see if we're at the begining of astral)
+            if (ActionResourceManager.BlackMage.UmbralHearts < 1)
                 return false;
-
-            return await Spells.LeyLines.Cast(Core.Me);
+            // If we used something that opens the GCD
+            if (Casting.LastSpell == Spells.Fire3 || Casting.LastSpell == Spells.Blizzard3 || Casting.LastSpell == Spells.Thunder3 || Core.Me.HasAura(Auras.Triplecast) || Casting.LastSpell == Spells.Xenoglossy)
+                return await Spells.LeyLines.Cast(Core.Me);
+            return false;
+            
         }
 
         public static async Task<bool> UmbralSoul()
@@ -67,5 +75,15 @@ namespace Magitek.Logic.BlackMage
 
             return await Spells.UmbralSoul.Cast(Core.Me);
         }
+
+        public static async Task<bool> ManaFont()
+        {
+            if (Casting.LastSpell == Spells.Fire3 && Spells.Fire.Cooldown.TotalMilliseconds > 700)
+                return await Spells.ManaFont.Cast(Core.Me);
+            return false;
+        }
+
+        
     }
+
 }

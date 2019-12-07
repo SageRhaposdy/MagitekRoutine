@@ -1,10 +1,11 @@
 ﻿using System.Linq;
 using System.Threading.Tasks;
 using ff14bot;
-using ff14bot.Managers;
+using ff14bot.Objects;
 using Magitek.Extensions;
 using Magitek.Models.Astrologian;
 using Magitek.Utilities;
+using Auras = Magitek.Utilities.Auras;
 
 namespace Magitek.Logic.Astrologian
 {
@@ -15,69 +16,57 @@ namespace Magitek.Logic.Astrologian
             if (!AstrologianSettings.Instance.Malefic)
                 return false;
 
-            if (ActionManager.HasSpell(Spells.Malefic3.Id))
-            {
-                return await Spells.Malefic3.Cast(Core.Me.CurrentTarget);
-            }
-
-            if (ActionManager.HasSpell(Spells.Malefic2.Id))
-            {
-                return await Spells.Malefic2.Cast(Core.Me.CurrentTarget);
-            }
-
-            if (Utilities.Routines.Astrologian.OnGcd) return false;
-
             return await Spells.Malefic.Cast(Core.Me.CurrentTarget);
         }
-        
-        public static async Task<bool> LordOfCrowns()
-        {
-            if (!AstrologianSettings.Instance.LordOfCrowns)
-                return false;
 
-            if (!ActionManager.HasSpell(Spells.LordOfCrowns.Id)) return false;
-            
-            if (ActionResourceManager.Astrologian.Arcana != ActionResourceManager.Astrologian.AstrologianCard.LordofCrowns) return false;
-            
-            if (Utilities.Routines.Astrologian.OnGcd) return false;
-            
-            return await Spells.LordOfCrowns.Cast(Core.Me.CurrentTarget);
-        }
-
-        public static async Task<bool> Dots()
-        {
-            if (AstrologianSettings.Instance.UseTimeTillDeathForDots)
-            {
-                var combatTimeLeft = Core.Me.CurrentTarget.CombatTimeLeft();
-
-                if (combatTimeLeft > 0 && combatTimeLeft < AstrologianSettings.Instance.DontDotIfEnemyDyingWithin)
-                    return false;
-            }
-            else
-            {
-                if (!Core.Me.CurrentTarget.HealthCheck(AstrologianSettings.Instance.DotHealthMinimum, AstrologianSettings.Instance.DotHealthMinimumPercent))
-                    return false;
-            }
-            
-            return await Combust();
-        }
-
-        private static async Task<bool> Combust()
+        public static async Task<bool> CombustMultipleTargets()
         {
             if (!AstrologianSettings.Instance.Combust)
                 return false;
 
-            if (ActionManager.HasSpell(Spells.Combust2.Id))
+            if (!AstrologianSettings.Instance.CombustMultipleTargets)
+                return false;
+
+            var combustTarget = Combat.Enemies.FirstOrDefault(NeedsCombust);
+
+            if (combustTarget == null)
+                return false;
+
+            return await Spells.Combust.Cast(combustTarget);
+
+            bool NeedsCombust(BattleCharacter unit)
             {
-                if (Core.Me.CurrentTarget.HasAura(Auras.Combust2, true, AstrologianSettings.Instance.DotRefreshSeconds * 1000))
+                if (!CanCombust(unit))
                     return false;
-
-                return await Spells.Combust2.CastAura(Core.Me.CurrentTarget, Auras.Combust2, true, AstrologianSettings.Instance.DotRefreshSeconds * 1000);
+                
+                return !unit.HasAnyAura(CombustAuras, true, msLeft:AstrologianSettings.Instance.CombustRefreshMSeconds);
             }
-            if (Core.Me.CurrentTarget.HasAura(Auras.Combust, true, AstrologianSettings.Instance.DotRefreshSeconds * 1000))
-                    return false;
 
-            return await Spells.Combust.CastAura(Core.Me.CurrentTarget, Auras.Combust, true, AstrologianSettings.Instance.DotRefreshSeconds * 1000);
+            bool CanCombust(GameObject unit)
+            {
+                if (!AstrologianSettings.Instance.UseTTDForCombust)
+                    return true;
+
+                return unit.CombatTimeLeft() >= AstrologianSettings.Instance.DontCombustIfEnemyDyingWithin;
+            }
         }
+
+        public static async Task<bool> Combust()
+        {
+            if (!AstrologianSettings.Instance.Combust)
+                return false;
+
+            if (Core.Me.CurrentTarget.HasAnyAura(CombustAuras, true, msLeft:AstrologianSettings.Instance.CombustRefreshMSeconds))
+                return false;
+
+            return await Spells.Combust.Cast(Core.Me.CurrentTarget);
+        }
+
+        private static readonly uint[] CombustAuras =
+        {
+            Auras.Combust,
+            Auras.Combust2,
+            Auras.Combust3
+        };
     }
 }

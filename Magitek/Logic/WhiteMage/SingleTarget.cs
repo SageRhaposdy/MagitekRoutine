@@ -2,9 +2,12 @@
 using System.Threading.Tasks;
 using ff14bot;
 using ff14bot.Managers;
+using ff14bot.Objects;
 using Magitek.Extensions;
+using Magitek.Gambits.Conditions;
 using Magitek.Models.WhiteMage;
 using Magitek.Utilities;
+using Auras = Magitek.Utilities.Auras;
 
 namespace Magitek.Logic.WhiteMage
 {
@@ -14,26 +17,6 @@ namespace Magitek.Logic.WhiteMage
         {
             if (!WhiteMageSettings.Instance.Stone)
                 return false;
-
-            if (Core.Me.ClassLevel >= 72)
-            {
-                return await Spells.Glare.Cast(Core.Me.CurrentTarget);
-            }
-
-            if (Core.Me.ClassLevel >= 64)
-            {
-                return await Spells.Stone4.Cast(Core.Me.CurrentTarget);
-            }
-
-            if (Core.Me.ClassLevel >= 54)
-            {
-                return await Spells.Stone3.Cast(Core.Me.CurrentTarget);
-            }
-
-            if (Core.Me.ClassLevel >= 18)
-            {
-                return await Spells.Stone2.Cast(Core.Me.CurrentTarget);
-            }
 
             return await Spells.Stone.Cast(Core.Me.CurrentTarget);
         }
@@ -61,7 +44,8 @@ namespace Magitek.Logic.WhiteMage
 
             if (ActionResourceManager.WhiteMage.BloodLily < 3)
                 return false;
-
+            if (!MovementManager.IsMoving)
+                return false; 
             return await Spells.AfflatusMisery.Cast(Core.Me.CurrentTarget);
         }
 
@@ -108,7 +92,8 @@ namespace Magitek.Logic.WhiteMage
             {
                 if (Core.Me.CurrentTarget.HasAura(Auras.Dia, true, WhiteMageSettings.Instance.DotRefreshSeconds * 1000))
                     return false;
-
+                if (Spells.Assize.Cooldown.TotalMilliseconds < 9000 && Spells.Assize.Cooldown.TotalMilliseconds > 1)
+                    return false;
                 return await Spells.Dia.CastAura(Core.Me.CurrentTarget, Auras.Dia, true, WhiteMageSettings.Instance.DotRefreshSeconds * 1000);
             }
         }

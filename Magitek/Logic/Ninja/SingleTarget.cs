@@ -43,7 +43,7 @@ namespace Magitek.Logic.Ninja
             if (HutonTimer.Seconds == 0)
                 return false;
 
-            if (HutonTimer.TotalMilliseconds > 30000)
+            if (HutonTimer.TotalMilliseconds > 8000)
                 return false;
 
             return await Spells.ArmorCrush.Cast(Core.Me.CurrentTarget);
@@ -54,8 +54,6 @@ namespace Magitek.Logic.Ninja
             if (!NinjaSettings.Instance.UseShadowFang)
                 return false;
 
-            if (ActionManager.LastSpell != Spells.SpinningEdge)
-                return false;
 
             if (Core.Me.CurrentTarget.HasAura(Auras.ShadowFang, true, NinjaSettings.Instance.ShadowFangRefresh * 1000))
                 return false;
@@ -81,7 +79,10 @@ namespace Magitek.Logic.Ninja
         {
             if (!NinjaSettings.Instance.UseAssassinate)
                 return false;
-
+            if (Spells.SpinningEdge.Cooldown.TotalMilliseconds < 850)
+                return false;
+            if (!Core.Me.HasAura(Auras.AssassinateReady))
+                return false;
             return await Spells.Assassinate.Cast(Core.Me.CurrentTarget);
         }
 
@@ -89,7 +90,8 @@ namespace Magitek.Logic.Ninja
         {
             if (!NinjaSettings.Instance.UseMug)
                 return false;
-
+            if (Spells.SpinningEdge.Cooldown.TotalMilliseconds < 850)
+                return false;
             if (NinkiGauge > 70 && Core.Me.ClassLevel > 65)
                 return false;
 
@@ -101,8 +103,17 @@ namespace Magitek.Logic.Ninja
             if (!NinjaSettings.Instance.UseTrickAttack)
                 return false;
 
+            if(Spells.SpinningEdge.Cooldown.TotalMilliseconds > 850)
+                return false;
+
             if (!Core.Me.HasAura(Auras.Suiton))
                 return false;
+
+            if (Spells.TrickAttack.Cooldown.Seconds > 6)
+                return false;
+
+            if (!Core.Me.CurrentTarget.IsBehind && !Core.Me.HasAura(Auras.TrueNorth) && Spells.TrueNorth.Charges >0)
+                return await Spells.TrueNorth.Cast(Core.Me);
 
             if (Core.Me.CurrentTarget.IsBehind || Core.Me.HasAura(Auras.TrueNorth) || !Core.Me.HasAura(Auras.Suiton, true, 3000))
                 return await Spells.TrickAttack.Cast(Core.Me.CurrentTarget);
@@ -110,34 +121,60 @@ namespace Magitek.Logic.Ninja
             if (!BotManager.Current.IsAutonomous)
                 return false;
 
-            return await Spells.TrickAttack.Cast(Core.Me.CurrentTarget);
+            return false;
         }
 
         public static async Task<bool> DreamWithinADream()
         {
             if (!NinjaSettings.Instance.UseDreamWithinADream)
                 return false;
-
-            if (Spells.TrickAttack.Cooldown.Seconds > 10)
+            if(Spells.SpinningEdge.Cooldown.TotalMilliseconds < 850)
                 return false;
+            if (Spells.TrickAttack.Cooldown.TotalMilliseconds > 50000)
+                return await Spells.DreamWithinaDream.Cast(Core.Me.CurrentTarget);
+            return false;
 
-            return await Spells.DreamWithinaDream.Cast(Core.Me.CurrentTarget);
+
         }
 
         public static async Task<bool> Bhavacakra()
         {
             if (!NinjaSettings.Instance.UseBhavacakra)
                 return false;
-
-            return await Spells.Bhavacakra.Cast(Core.Me.CurrentTarget);
-        }
-
-        public static async Task<bool> Bunshin()
-        {
-            if (!NinjaSettings.Instance.UseBunshin)
+            
+            if (Spells.SpinningEdge.Cooldown.TotalMilliseconds < 850)
+                return false;
+            if (Spells.TrickAttack.Cooldown.TotalMilliseconds < 7500)
                 return false;
 
-            return await Spells.Bunshin.Cast(Core.Me.CurrentTarget);
+            if(NinkiGauge >= 100)
+                return await (Spells.Bhavacakra.Cast(Core.Me.CurrentTarget));
+
+            int canwesafelycastthis = 0;
+            double cooldown = Spells.Bunshin.Cooldown.TotalMilliseconds;
+            double ninki = ActionResourceManager.Ninja.NinkiGauge;
+            double gcd = 2500;
+            double ninjutsu = Spells.Jin.Cooldown.TotalMilliseconds;
+            double ninadjust = 0;
+
+            //Are we going to Ninjutsu before we Bunshin?
+            if (cooldown > ninjutsu)
+            {
+                ninadjust = 5;
+            }
+
+            double calc= cooldown / gcd;
+
+            if (((calc- ninadjust) * 5) + ninki >= 100)
+                canwesafelycastthis = 1;
+
+            if (canwesafelycastthis == 1)
+            {
+                Logger.Write("Calc:" + calc + "Cooldown:" + cooldown + "GCD: " + gcd + "NINKI: " + ninki);
+                return await (Spells.Bhavacakra.Cast(Core.Me.CurrentTarget));
+            }
+
+            return false;
         }
     }
 }
