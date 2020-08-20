@@ -49,6 +49,10 @@ namespace Magitek.Models.Ninja
         public bool ForceRaiton { get; set; }
 
         [Setting]
+        [DefaultValue(false)]
+        public bool ForceDoton { get; set; }
+
+        [Setting]
         [DefaultValue(true)]
         public bool UseDualityWithArmorCrush { get; set; }
 

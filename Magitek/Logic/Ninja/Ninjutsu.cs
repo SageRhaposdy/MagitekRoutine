@@ -41,6 +41,32 @@ namespace Magitek.Logic.Ninja
             return true;
         }
 
+        public static bool ForceDoton()
+        {
+            if (!NinjaSettings.Instance.ForceDoton)
+                return false;
+
+            if (Core.Me.HasAura(Auras.Kassatsu))
+                return false;
+
+            if (Core.Me.ClassLevel < 45)
+                return false;
+
+            if (!ActionManager.CanCast(Spells.Ten, null))
+                return false;
+
+            SpellQueueLogic.SpellQueue.Clear();
+            SpellQueueLogic.Timeout.Start();
+            SpellQueueLogic.CancelSpellQueue = () => SpellQueueLogic.Timeout.ElapsedMilliseconds > 5000;
+            SpellQueueLogic.SpellQueue.Enqueue(new QueueSpell { Spell = Spells.Ten, TargetSelf = true });
+            SpellQueueLogic.SpellQueue.Enqueue(new QueueSpell { Spell = Spells.Jin, TargetSelf = true });
+            SpellQueueLogic.SpellQueue.Enqueue(new QueueSpell { Spell = Spells.Chi, TargetSelf = true });
+            SpellQueueLogic.SpellQueue.Enqueue(new QueueSpell { Spell = Spells.Doton, TargetSelf = true });
+            NinjaSettings.Instance.ForceDoton = false;
+            TogglesManager.ResetToggles();
+            return true;
+        }
+    
 
         public static bool FumaShuriken()
         {

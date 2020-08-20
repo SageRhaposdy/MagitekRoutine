@@ -165,21 +165,6 @@ namespace Magitek.Logic.Warrior
             if (ActionManager.LastSpell != Spells.Maim)
                 return false;
 
-            // If we have Inner Release
-            if (Core.Me.ClassLevel > 70)
-            {
-                // If Inner Release as 10 seconds or less left on cooldown
-                if (Spells.InnerRelease.Cooldown.TotalMilliseconds < 10000)
-                {
-                    int refreshTime = 19000 + (int)Spells.InnerRelease.Cooldown.TotalMilliseconds; 
-                    // If we don't have Storm's Eye aura for at least 10 seconds + Inner Release cooldown time
-                    if (!Core.Me.HasAura(Auras.StormsEye, true, refreshTime))
-                    {
-                        // Use Storm's Eye
-                        return await Spells.StormsEye.Cast(Core.Me.CurrentTarget);
-                    }
-                }
-            }
 
             if (Core.Me.HasAura(Auras.StormsEye, true, 6500))
                 return false;

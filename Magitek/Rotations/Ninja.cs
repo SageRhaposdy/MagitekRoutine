@@ -138,6 +138,7 @@ namespace Magitek.Rotations
             //    }
             //}
             if (Ninjutsu.ForceRaiton()) return true;
+            if (Ninjutsu.ForceDoton()) return true;
             if (Spells.SpinningEdge.Cooldown.TotalMilliseconds > 650)
             {
                 //Utility Force Toggle

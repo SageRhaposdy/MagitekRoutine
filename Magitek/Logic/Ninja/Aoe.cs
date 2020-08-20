@@ -59,7 +59,7 @@ namespace Magitek.Logic.Ninja
             if (ActionResourceManager.Ninja.NinkiGauge >= 50 && Spells.Mug.Cooldown.TotalMilliseconds < Spells.TrickAttack.Cooldown.TotalMilliseconds + 1000 && Spells.Bunshin.Cooldown.TotalMilliseconds > Spells.TrickAttack.Cooldown.TotalMilliseconds)
                 return await (Spells.HellfrogMedium.Cast(Core.Me.CurrentTarget));
 
-            if (NinkiGauge < 90 && Spells.TrickAttack.Cooldown.TotalMilliseconds < 46000)
+            if (NinkiGauge < 95 && Spells.TrickAttack.Cooldown.TotalMilliseconds < 46000)
                 return false;
 
 
