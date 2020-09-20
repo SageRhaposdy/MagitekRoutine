@@ -71,7 +71,7 @@ namespace Magitek.Logic.Warrior
         {
             int upheavalReplaced = 1;
 
-            if (Spells.HeavySwing.Cooldown.TotalMilliseconds < 600)
+            if (Spells.HeavySwing.Cooldown.TotalMilliseconds < 700)
                 return false;
 
             if (Spells.Upheaval.Cooldown.TotalMilliseconds > 0)
@@ -194,6 +194,9 @@ namespace Magitek.Logic.Warrior
         public static async Task<bool> Onslaught()
         {
             if (!WarriorSettings.Instance.UseOnslaught)
+                return false;
+            
+            if (Spells.HeavySwing.Cooldown.TotalMilliseconds < 700)
                 return false;
 
             if (!Core.Me.HasAura(Auras.InnerRelease))

@@ -123,7 +123,7 @@ namespace Magitek.Logic.Gunbreaker
             if (Spells.NoMercy.Cooldown.TotalMilliseconds < 3000)
                 return false;
             
-            if (Core.Player.HasAura(Auras.NoMercy) && Cartridge != 0 && Spells.GnashingFang.Cooldown.TotalMilliseconds > 0)
+            if (Core.Player.HasAura(Auras.NoMercy) && Cartridge != 0 && Spells.GnashingFang.Cooldown.TotalMilliseconds > 7500)
                 return await Spells.BurstStrike.Cast(Core.Me.CurrentTarget);
             if (Cartridge == 2)
                 return await Spells.BurstStrike.Cast(Core.Me.CurrentTarget);

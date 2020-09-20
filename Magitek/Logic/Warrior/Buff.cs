@@ -55,7 +55,7 @@ namespace Magitek.Logic.Warrior
                 return false;
 
             //Only use Inner Release after we have Storm's Eye
-            if ((!Core.Me.HasAura(Auras.StormsEye, true, 12000) && (Casting.LastSpell != Spells.StormsEye)))
+            if (!Core.Me.HasAura(Auras.StormsEye, true, 750))
                 return false;
             // We're assuming IR is usable from here
             // If we're on GCD with more than 800 milliseconds left
