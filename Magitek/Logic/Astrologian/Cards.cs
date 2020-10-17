@@ -21,6 +21,9 @@ namespace Magitek.Logic.Astrologian
             if (!AstrologianSettings.Instance.UseDraw)
                 return false;
 
+            if (Spells.Malefic.Cooldown.TotalMilliseconds < 700)
+                return false;
+
             var cardDrawn = Arcana != AstrologianCard.None;
 
             if (!cardDrawn)
@@ -214,7 +217,7 @@ namespace Magitek.Logic.Astrologian
 
             var divinationTargets = Group.CastableAlliesWithin15.Count(r => r.IsAlive);
 
-            if (divinationTargets >= 2)
+            if (divinationTargets >= 7)
                 return await Spells.Divination.CastAura(Core.Me, Auras.Divination);
 
             return false;
