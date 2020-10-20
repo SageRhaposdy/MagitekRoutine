@@ -86,6 +86,11 @@ namespace Magitek.Utilities
                 if (ally == null)
                     continue;
 
+                if (BaseSettings.Instance.DebugHealingLists == true)
+                {
+                    Logger.WriteInfo($@"[Debug] PartyManager {ally.Name} is a valid Party Member in PartyManager.");
+                }
+
                 if (!ally.IsTargetable || !ally.InLineOfSight() || ally.Icon == PlayerIcon.Viewing_Cutscene)
                     continue;
 
